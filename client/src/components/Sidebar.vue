@@ -1,173 +1,299 @@
 <template>
-	<aside :class="`${is_expanded ? 'is-expanded' : ''}`">
-		<div class="logo">
-			<img :src="logoURL" alt="Vue" /> 
-		</div>
-
-		<div class="menu-toggle-wrap">
-			<button class="menu-toggle" @click="ToggleMenu">
-				<span class="material-icons">keyboard_double_arrow_right</span>
-			</button>
-		</div>
-
-		<h3>Menu</h3>
-		<div class="menu">
-			<router-link to="/" class="button">
-				<span class="material-icons">home</span>
-				<span class="text">Home</span>
-			</router-link>
-			<router-link to="/notes" class="button">
-				<span class="material-icons">description</span>
-				<span class="text">notes</span>
-			</router-link>
-			<router-link to="/" class="button">
-				<span class="material-icons">group</span>
-				<span class="text">Team</span>
-			</router-link>
-			<router-link to="/" class="button">
-				<span class="material-icons">email</span>
-				<span class="text">Contact</span>
-			</router-link>
-		</div>
-
-		<div class="flex"></div>
-		
-		<div class="menu">
-			<router-link to="/settings" class="button">
-				<span class="material-icons">settings</span>
-				<span class="text">Settings</span>
-			</router-link>
-		</div>
-	</aside>
+  <div>
+    <div class="sidebar-close">
+      <b-button v-b-toggle.leftSidebar
+        ><b-icon icon="chevron-double-right"></b-icon
+      ></b-button>
+    </div>
+    <b-sidebar
+      id="leftSidebar"
+      class="sidebar-menu"
+      width="210px"
+      shadow
+      title="Clouday1"
+      v-model="isLeftSidebarOpen"
+      text-variant="light"
+    >
+      <template #footer>
+        <div class="d-flex bg-dark text-light align-items-center px-3 py-2">
+          <strong class="mr-auto">Footer</strong>
+          <!-- <b-button size="sm" @click="hide">Close</b-button> -->
+          <b-button
+            v-if="!isLoggedIn()"
+            @click="handleLogin"
+            variant="info"
+            class="my-2 my-sm-0"
+            type="submit"
+            size="sm"
+          >
+            Sign In
+          </b-button>
+          <b-button
+            v-if="isLoggedIn()"
+            @click="handleLogout"
+            variant="info"
+            class="my-2 my-sm-0"
+            type="submit"
+            size="sm"
+          >
+            <b-icon icon="box-arrow-right"></b-icon>
+          </b-button>
+        </div>
+      </template>
+      <div class="px-2 py-2">
+        <div id="router-nav" class="router-nav">
+          <div class="nav-panel-mobile">
+            <div class="hamburger-icon" @click="toggle()">
+              &#9776; {{ currentRoute }}
+            </div>
+            <div class="mobile-menu" v-if="active">
+              <div
+                class="nav-item"
+                v-for="route in $router.options.routes"
+                :key="route.path"
+                @click="toggle()"
+              >
+                <router-link class="custom-nav-item" :to="route.path">
+                  {{ route.name }}
+                </router-link>
+              </div>
+            </div>
+          </div>
+          <div class="nav-panel">
+            <!-- <div
+              class="nav-item"
+              v-for="route in $router.options.routes"
+              :key="route.path"
+            > -->
+            <div
+              class="nav-item"
+              v-for="(route, i) in $router.options.routes"
+              :key="route.path"
+              :class="{ active: route.clicked }"
+            >
+              <a
+                v-b-toggle="'collapse-' + i"
+                class="custom-nav-item"
+                v-if="check(route.name)"
+                >{{ route.name }}</a
+              >
+              <b-collapse :id="'collapse-' + i" class="mt-2">
+                <div class="nav-subitem" v-if="route.children != 'undefined'">
+                  <router-link
+                    class="custom-nav-subitem"
+                    v-for="child in route.children"
+                    :key="child.path"
+                    :to="child.path"
+                  >
+                    {{ child.name }}
+                  </router-link>
+                </div>
+              </b-collapse>
+              <!-- <router-link class="custom-nav-item"  @click="selected(e)" v-if="route.name != 'Arch'" :to="route.path">
+                {{ route.name }}
+              </router-link> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </b-sidebar>
+  </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import logoURL from '../assets/logo.png'
-const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
-const ToggleMenu = () => {
-	is_expanded.value = !is_expanded.value
-	localStorage.setItem("is_expanded", is_expanded.value)
-}
+<script>
+import jQuery from "jquery";
+window.$ = window.jQuery = jQuery;
+import { isLoggedIn, login, logout } from "@/utils/auth-service";
+
+export default {
+  data: function () {
+    return {
+      active: false,
+      isLeftSidebarOpen: true,
+    };
+  },
+  computed: {
+    currentRoute: function () {
+      return this.$route.name;
+    },
+  },
+  created: function () {},
+  methods: {
+    toggle: function () {
+      this.active = !this.active;
+    },
+    handleLogin() {
+      login();
+    },
+    handleLogout() {
+      logout();
+    },
+    isLoggedIn() {
+      return isLoggedIn();
+    },
+    check(name) {
+      if (name != "Arch" && name != "Callback") return true;
+    },
+  },
+};
 </script>
 
-<style lang="scss" scoped>
-aside {
-	display: flex;
-	flex-direction: column;
-	background-color: var(--dark);
-	color: var(--light);
-	width: calc(2rem + 32px);
-	overflow: hidden;
-	min-height: 100vh;
-	padding: 1rem;
-	transition: 0.2s ease-in-out;
-	.flex {
-		flex: 1 1 0%;
-	}
-	.logo {
-		margin-bottom: 1rem;
-		img {
-			width: 2rem;
-		}
-	}
-	.menu-toggle-wrap {
-		display: flex;
-		justify-content: flex-end;
-		margin-bottom: 1rem;
-		position: relative;
-		top: 0;
-		transition: 0.2s ease-in-out;
-		.menu-toggle {
-			transition: 0.2s ease-in-out;
-			.material-icons {
-				font-size: 2rem;
-				color: var(--light);
-				transition: 0.2s ease-out;
-			}
-			
-			&:hover {
-				.material-icons {
-					color: var(--primary);
-					transform: translateX(0.5rem);
-				}
-			}
-		}
-	}
-	h3, .button .text {
-		opacity: 0;
-		transition: opacity 0.3s ease-in-out;
-	}
-	h3 {
-		color: var(--grey);
-		font-size: 0.875rem;
-		margin-bottom: 0.5rem;
-		text-transform: uppercase;
-	}
-	.menu {
-		margin: 0 -1rem;
-		.button {
-			display: flex;
-			align-items: center;
-			text-decoration: none;
-			transition: 0.2s ease-in-out;
-			padding: 0.5rem 1rem;
-			.material-icons {
-				font-size: 2rem;
-				color: var(--light);
-				transition: 0.2s ease-in-out;
-			}
-			.text {
-				color: var(--light);
-				transition: 0.2s ease-in-out;
-			}
-			&:hover {
-				background-color: var(--dark-alt);
-				.material-icons, .text {
-					color: var(--primary);
-				}
-			}
-			&.router-link-exact-active {
-				background-color: var(--dark-alt);
-				border-right: 5px solid var(--primary);
-				.material-icons, .text {
-					color: var(--primary);
-				}
-			}
-		}
-	}
-	.footer {
-		opacity: 0;
-		transition: opacity 0.3s ease-in-out;
-		p {
-			font-size: 0.875rem;
-			color: var(--grey);
-		}
-	}
-	&.is-expanded {
-		width: var(--sidebar-width);
-		.menu-toggle-wrap {
-			top: -3rem;
-			
-			.menu-toggle {
-				transform: rotate(-180deg);
-			}
-		}
-		h3, .button .text {
-			opacity: 1;
-		}
-		.button {
-			.material-icons {
-				margin-right: 1rem;
-			}
-		}
-		.footer {
-			opacity: 0;
-		}
-	}
-	@media (max-width: 1024px) {
-		position: absolute;
-		z-index: 99;
-	}
+<style lang="scss">
+.sidebar-menu {
+  .b-sidebar.shadow {
+    background: #3c4547 !important;
+  }
+  .b-sidebar > .b-sidebar-header {
+    background: #ecb300;
+    color: #3c4547;
+    font-size: 24px;
+    border-radius: 0 0 25px 0;
+  }
+  .bi-x {
+    color: #000000;
+  }
 }
+
+.sidebar-close {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  height: 100%;
+  background: #3c4547;
+  transition: all 0.3s ease;
+  button,
+  button:hover,
+  button:active,
+  button:focus {
+    background: #ecb300;
+    border: 0;
+    width: 100%;
+    border-radius: 0 0 25px 0;
+	padding: 10px 5px 14px 0;
+    .b-icon {
+      color: #3c4547;
+	  font-size: 24px !important;
+    }
+  }
+}
+
+.navbar-nav {
+  align-items: center;
+}
+
+.nav-panel {
+  display: none;
+}
+.nav-panel-mobile {
+  display: flex;
+  flex-flow: column;
+}
+.mobile-menu {
+  display: flex;
+  flex-flow: column;
+}
+.hamburger-icon {
+  font-size: 2em;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+}
+
+.nav-item * {
+  text-decoration: none;
+}
+.nav-item a {
+  color: #fff;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  padding: 0 6px;
+  &:hover {
+    color: #fff;
+    text-decoration: none;
+  }
+}
+.custom-nav-item,
+.custom-nav-subitem {
+  font-size: 1em;
+  font-weight: bold;
+  border-left: 4px solid transparent;
+  display: block;
+  cursor: pointer;
+}
+
+.custom-nav-subitem:hover {
+  border-left: #ecb300 solid 4px;
+}
+
+.custom-nav-item.collapsed::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f105";
+  font-style: normal;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  background: 0 0;
+  margin-right: 10px;
+}
+
+.custom-nav-item.not-collapsed::before,
+.custom-nav-item:hover::before,
+.custom-nav-item:hover,
+.custom-nav-item.not-collapsed {
+  color: #ecb300 !important;
+}
+
+.custom-nav-item.not-collapsed::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f105";
+  font-style: normal;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  background: 0 0;
+  margin-right: 10px;
+  transform: rotate(90deg);
+}
+
+.nav-item .nav-subitem {
+  margin-left: 28px;
+  margin-top: 8px;
+  a {
+    margin: 8px 0;
+  }
+}
+
+/* media queries */
+@media only screen and (min-width: 450px) {
+  .nav-panel {
+    display: flex;
+    flex-direction: column;
+    // padding: 20px 0px;
+  }
+  .router-link-exact-active {
+    border-left: #ecb300 solid 4px;
+  }
+  .router-link-exact-active .nav-subitem {
+    display: block;
+  }
+  .nav-item {
+    padding-right: 1em;
+    padding: 8px 0;
+  }
+  .nav-panel-mobile {
+    display: none;
+  }
+}
+
+
 </style>

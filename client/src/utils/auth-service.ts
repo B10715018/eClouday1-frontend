@@ -32,7 +32,8 @@ export function logout(): void {
   clearIdToken();
   clearAccessToken();
   // @ts-ignore
-  router.go("/");
+  // router.go("/");
+  login();
 }
 
 export function getAccessToken(): string | null {

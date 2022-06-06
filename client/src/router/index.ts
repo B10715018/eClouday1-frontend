@@ -1,7 +1,9 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
-import About from "../views/Abou.vue";
+import About from "../views/About.vue";
+import Arch from "../views/Arch.vue";
+import Billing from "../views/Billing.vue";
 import Callback from "../components/Callback.vue";
 import Notes from "../components/Notes.vue";
 
@@ -10,21 +12,42 @@ Vue.use(VueRouter);
 const routes: RouteConfig[] = [
   {
     path: "/",
-    name: "Home",
+    name: "Dashboard",
     component: Home
   },
   {
     path: "/notes",
-    name: "Notes",
+    name: "Support Services",
+    component: Notes,
+  },
+  {
+    path: "/billing",
+    name: "Billing",
+    component: Billing,
+  },
+  {
+    path: "/notes",
+    name: "Automation",
     component: Notes,
   },
   {
     path: "/about",
-    name: "About",
+    name: "Architecture",
     component: About,
+    children: [
+      {name: 'AWS', path: '/about', component: About},
+      {name: 'Azure', path: '2', component: Notes},
+      {name: 'GCP', path: '2', component: Notes},
+    ],
+  },
+  {
+    path: "/arch",
+    name: "Arch",
+    component: Arch,
   },
   {
     path: "/callback",
+    name: "Callback",
     component: Callback,
   },
 ];

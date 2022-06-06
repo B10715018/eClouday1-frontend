@@ -1,5 +1,20 @@
+<template>
+  <router-link :to="to" class="link" :class="{ active: isActive }">
+    <i class="icon" :class="icon" />
+    <transition name="fade">
+      <span v-if="!collapsed">
+        <slot />
+      </span>
+    </transition>
+  </router-link>
+</template>
+
 <script>
-import { computed } from 'vue'
+import Vue from 'vue'
+import VueCompositionApi from '@vue/composition-api'
+
+Vue.use(VueCompositionApi)
+import { computed } from '@vue/composition-api'
 import { useRoute } from 'vue-router'
 import { collapsed } from './state'
 
@@ -15,17 +30,6 @@ export default {
   }
 }
 </script>
-
-<template>
-  <router-link :to="to" class="link" :class="{ active: isActive }">
-    <i class="icon" :class="icon" />
-    <transition name="fade">
-      <span v-if="!collapsed">
-        <slot />
-      </span>
-    </transition>
-  </router-link>
-</template>
 
 <style scoped>
 .fade-enter-active,

@@ -1,5 +1,6 @@
 <template>
-  <div class="about">
+  <div class="about d-flex">
+    <nav-bar />
     <div class="container">
       <h3 class="text-gray">
         Architecture<b-icon icon="chevron-compact-right"></b-icon>
@@ -314,11 +315,13 @@
 
 <script>
 import Multiselect from "vue-multiselect";
+import NavBar from "@/components/Sidebar.vue";
 import axios from "axios";
 
 export default {
   components: {
     Multiselect,
+     "nav-bar": NavBar,
   },
   data() {
     return {

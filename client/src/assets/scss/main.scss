@@ -103,6 +103,7 @@
     width: 22vw !important;
     margin-bottom: 24px;
     margin-right: 24px;
+    z-index: 2;
   }
   
   /*Add border to View container:*/
@@ -117,6 +118,9 @@
   .cytoscape-navigator:hover .cytoscape-navigatorOverlay {
     border: 2px solid #124191;
     background: transparent;
+  }
+  .cytoscape-navigatorOverlay {
+    z-index: 2 !important;
   }
   
   /*Ovveride view's container when mouse is over view*/

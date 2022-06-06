@@ -1,4 +1,8 @@
-import { ref, computed } from 'vue'
+import Vue from 'vue'
+import VueCompositionApi from '@vue/composition-api'
+
+Vue.use(VueCompositionApi)
+import { ref, computed } from '@vue/composition-api'
 
 export const collapsed = ref(false)
 export const toggleSidebar = () => (collapsed.value = !collapsed.value)
