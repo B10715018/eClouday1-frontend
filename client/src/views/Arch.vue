@@ -11,7 +11,7 @@
             ref="dropdown"
           >
             <template #button-content>
-              <b-icon icon="filter-circle-fill" class="mr-1"></b-icon
+              <b-icon icon="funnel-fill" class="mr-1"></b-icon
               ><span> Filter</span>
             </template>
             <b-dropdown-form
@@ -1423,5 +1423,9 @@ main {
   &:hover {
     background: #db9a47;
   }
+}
+
+.cytoscape-navigator {
+  z-index: 0 !important;
 }
 </style>

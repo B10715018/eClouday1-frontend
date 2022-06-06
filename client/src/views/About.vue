@@ -12,7 +12,7 @@
       <div class="d-flex justify-content-between py-3 mb-1">
         <h4 class="fw-bold">Imported Accounts</h4>
         <b-button variant="outline-secondary" v-b-modal.add-account
-          ><b-icon icon="plus-square-dotted" class="mr-1"></b-icon> New
+          ><b-icon icon="plus-square" class="mr-1"></b-icon> New
           Account</b-button
         >
         <!-- modal start -->
@@ -206,11 +206,36 @@
           </b-form>
         </b-modal>
         <!-- modal end -->
+
+        <!-- second modal -->
+        <b-modal
+          id="modal-1"
+          ref="sending-modal"
+          :no-close-on-backdrop="true"
+          hide-footer="true"
+          hide-header-close="true"
+        >
+          <div class="loading">
+            <div class="span-container">
+              <span class="one"></span>
+              <span class="two"></span>
+              <span class="three"></span>
+              <span class="four"></span>
+            </div>
+            <h5 class="fw-bold mt-3 text-center">Importing your data...</h5>
+            <p class="text-center text-gray">
+              <i class="bi bi-exclamation-triangle-fill warning-text"></i>
+              This process could take serveral minutes. <br />To avoid losing
+              progress, don't close this browser tab.
+            </p>
+          </div>
+        </b-modal>
+        <!--  -->
       </div>
 
       <b-container fluid>
         <!-- User Interface controls -->
-        <b-row class="justify-content-between">
+        <b-row class="justify-content-between mb-2">
           <b-col lg="4" class="my-1">
             <b-form-group class="mb-0">
               <b-input-group size="sm">
@@ -235,7 +260,7 @@
           </b-col>
 
           <b-col sm="5" md="4" class="my-1">
-            <b-row>
+            <b-row class="justify-content-end">
               <b-button
                 variant="secondary"
                 @click="fetchData()"
@@ -251,6 +276,7 @@
                 align="fill"
                 size="sm"
                 class="my-0"
+                varient="warning"
               ></b-pagination>
             </b-row>
           </b-col>
@@ -263,6 +289,8 @@
           :current-page="currentPage"
           :per-page="perPage"
           :filter="filter"
+          sort-by.sync="timestamp"
+          sort-desc.sync="false"
           stacked="md"
           :busy="isBusy"
           show-empty
@@ -295,6 +323,11 @@
                 class="delete-icon"
                 @click="deleteArch(row.index, row.item.requestID)"
               ></b-icon>
+              <b-icon
+                icon="exclamation-circle"
+                class="exclamation-circle"
+                @click="showArchInfo(row.item)"
+              ></b-icon>
             </div>
           </template>
 
@@ -321,7 +354,7 @@ import axios from "axios";
 export default {
   components: {
     Multiselect,
-     "nav-bar": NavBar,
+    "nav-bar": NavBar,
   },
   data() {
     return {
@@ -491,6 +524,9 @@ export default {
         this.errors.push(e);
       }
     },
+    // showArchInfo() {
+    //   row.item
+    // },
     checkFormValidity() {
       const valid = this.$refs.formValid.checkValidity();
       this.state = valid;
@@ -520,10 +556,12 @@ export default {
         alert("Please select region.");
         return;
       }
+      this.$refs["sending-modal"].show();
       axios
         .post("http://44.237.111.172/newPost", this.form, {})
         .then((res) => {
           console.log(res);
+          this.$refs["sending-modal"].hide();
         })
         .catch((err) => {
           console.log(err);

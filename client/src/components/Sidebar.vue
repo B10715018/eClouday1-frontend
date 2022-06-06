@@ -16,9 +16,10 @@
     >
       <template #footer>
         <div class="d-flex bg-dark text-light align-items-center px-3 py-2">
-          <strong class="mr-auto">Footer</strong>
+          <strong class="mr-auto"></strong>
           <!-- <b-button size="sm" @click="hide">Close</b-button> -->
-          <b-button
+          
+		  <b-button
             v-if="!isLoggedIn()"
             @click="handleLogin"
             variant="info"
@@ -28,11 +29,26 @@
           >
             Sign In
           </b-button>
+		  <div v-if="isLoggedIn()">
+			  <b-button
+            class="my-2 my-sm-0 mx-1"
+            size="sm"
+            variant="warning"
+          >
+            <b-icon icon="bell-fill"></b-icon>
+			</b-button>
+			  <b-button
+            class="my-2 my-sm-0 mx-1"
+            size="sm"
+            variant="light"
+          >
+            <b-icon icon="gear-fill"></b-icon>
+          </b-button>
+		  </div>
           <b-button
-            v-if="isLoggedIn()"
             @click="handleLogout"
             variant="info"
-            class="my-2 my-sm-0"
+            class="my-2 my-sm-0 mx-1"
             type="submit"
             size="sm"
           >
@@ -152,6 +168,14 @@ export default {
   .bi-x {
     color: #000000;
   }
+}
+
+.bi-box-arrow-right.b-icon {
+	font-size: 16px !important;
+}
+
+.sidebar-menu .b-sidebar > .b-sidebar-footer {
+	background: #7c7b7b59;
 }
 
 .sidebar-close {
@@ -294,6 +318,4 @@ export default {
     display: none;
   }
 }
-
-
 </style>
