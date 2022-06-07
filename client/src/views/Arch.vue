@@ -47,7 +47,7 @@
                       :key="tag"
                       :title="tag"
                       variant="info"
-                      class="m-1 "
+                      class="m-1"
                       >{{ tag }}</b-form-tag
                     >
                   </div>
@@ -64,6 +64,19 @@
               </div>
             </b-dropdown-form>
           </b-dropdown>
+          <b-button id="AddNode" @click="AddNode()">Add</b-button>
+
+          <!-- <b-button v-b-toggle.sidebar-1>Add</b-button>
+          <b-sidebar id="sidebar-1" title="Add Resource" shadow>
+            <div class="px-3 py-2">
+              <b-form-select
+                v-model="selectedNode"
+                :options="AddNodeoption"
+              ></b-form-select>
+              {{ selectedNode }}
+            </div>
+            <b-button id="AddNode" @click="AddNode()">Add</b-button>
+          </b-sidebar> -->
         </div>
       </div>
       <div class="mt-2 filter-result">
@@ -139,24 +152,19 @@
           >
             <span class="info-content-subtitle">{{ i }}: </span>
             "
-            <!-- <input
-              type="text"
-              v-model="checkNewTargetObj(newTargetObj)[1][index][i]"
-            /> -->
             <input
               type="text"
               v-model="checkNewTargetObj(newTargetObj)[1][index][i]"
               :disabled="disabledInput"
             />
             "
-            <!-- {{ val }} -->
           </div>
         </div>
         <hr />
 
         <p class="cost">
           <b-icon icon="currency-dollar"></b-icon>
-          {{ newTargetObj.Cost_for_month }} USD / month
+          $ {{ newTargetObj.Cost_for_month }} USD / month
         </p>
         <b-button class="console-link"
           ><a :href="newTargetObj.Console_url" target="_blank"
@@ -215,12 +223,21 @@
 import axios from "axios";
 import "cytoscape-navigator/cytoscape.js-navigator.css";
 import jQuery from "jquery";
-window.$ = window.jQuery = jQuery
+window.$ = window.jQuery = jQuery;
 // cytoscape
-import cytoscape from 'cytoscape';
-import dagre from 'cytoscape-dagre';
+import cytoscape from "cytoscape";
+import dagre from "cytoscape-dagre";
+import edgehandles from "cytoscape-edgehandles";
+import fcose from "cytoscape-fcose";
+import expandCollapse from "cytoscape-expand-collapse";
+import { fcose_layout, dagre_layout, cytoStyle } from "@/components/cytoscape/handleStyle.js";
+import { nodeImg } from "@/components/cytoscape/handleImg.js";
 
-cytoscape.use( dagre );
+cytoscape.use(expandCollapse);
+cytoscape.use(fcose);
+cytoscape.use(dagre);
+cytoscape.use(edgehandles);
+
 var navigator = require("cytoscape-navigator");
 
 navigator(cytoscape); // register extension
@@ -228,9 +245,7 @@ navigator(cytoscape); // register extension
 
 export default {
   name: "cytoscape",
-  components: {
-   
-  },
+  components: {},
   data() {
     return {
       nodes: [],
@@ -249,6 +264,16 @@ export default {
         { text: "Owner", value: "tag.Owner" },
         { text: "Project", value: "tag.Project" },
       ],
+      AddNodeoption: [
+        { text: "Lambda", value: "Lambda" },
+        { text: "EC2", value: "EC2" },
+        { text: "S3", value: "S3" },
+        { text: "RDS", value: "RDS" },
+        { text: "DynamoDB", value: "DynamoDB" },
+        { text: "CloudFront", value: "CloudFront" },
+        { text: "WAF", value: "WAF" },
+      ],
+      selectedNode: "",
       newTargetObj: {},
       filterOpt: ["id", "url", "parent", "type"],
       isRightSidebarOpen: false,
@@ -391,116 +416,28 @@ export default {
       this.ResourceAccountID = [...new Set(set)];
     },
     Addimg() {
-      const img = [
-        {
-          title: "DynamoDB",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_Amazon-DynamoDB_32.png",
-        },
-        {
-          title: "Transcribe",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_Amazon-Transcribe_32.png",
-        },
-        {
-          title: "Translate",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_Amazon-Translate_32.png",
-        },
-        {
-          title: "Lambda",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_AWS-Lambda_32.png",
-        },
-        {
-          title: "Step-Functions",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_AWS-Step-Functions_32.png",
-        },
-        {
-          title: "S3",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_AWS-Simple-Storage-Service_S3-Standard_48_Light.png",
-        },
-        {
-          title: "SNS",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Amazon-Simple-Notification-Service-SNS.png",
-        },
-        {
-          title: "API Gateway",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_Amazon-API-Gateway_32.png",
-        },
-        {
-          title: "Cognito",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_Amazon-Cognito_32.png",
-        },
-        {
-          title: "Account",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/AWS-Cloud-Account_light-bg.png",
-        },
-        {
-          title: "RDS",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_Amazon-RDS_32.png",
-        },
-        {
-          title: "EC2",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_Amazon-EC2_32.png",
-        },
-        {
-          title: "Resource-Group",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Amazon-Resourece-Groups-and-Tags.png",
-        },
-        {
-          title: "WAF",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_AWS-WAF_32.png",
-        },
-        {
-          title: "ElbV2",
-          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Elastic-Load-Balancing-ELB_light-bg.png",
-        },
-      ];
       for (var i = 0; i < this.nodes.length; i++) {
-        for (var j = 0; j < img.length; j++) {
-          if (img[j].title.indexOf(this.nodes[i].data.type) != -1) {
-            this.nodes[i].data.url = img[j].url;
+        for (var j = 0; j < nodeImg.length; j++) {
+          if (nodeImg[j].title.indexOf(this.nodes[i].data.type) != -1) {
+            this.nodes[i].data.url = nodeImg[j].url;
             // console.log(dataset.nodes[i].data)
           }
         }
       }
     },
+    Mappingimg(node) {
+      let img_url;
+      nodeImg.forEach((val) => {
+        if (val.title == node) {
+          img_url = val.url;
+        }
+      });
+      return img_url;
+    },
     createCytoscape(_this) {
       cytoscape.warnings(false);
       // cytoscape({
-      var layout = {
-        name: "dagre",
-        avoidOverlap: true,
-        // dagre algo options, uses default value on undefined
-        nodeSep: 50, // the separation between adjacent nodes in the same rank
-        edgeSep: undefined, // the separation between adjacent edges in the same rank
-        rankSep: undefined, // the separation between each rank in the layout
-        rankDir: "LR", // 'TB' for top to bottom flow, 'LR' for left to right,
-        align: "UR", // alignment for rank nodes. Can be 'UL', 'UR', 'DL', or 'DR', where U = up, D = down, L = left, and R = right
-        acyclicer: undefined, // If set to 'greedy', uses a greedy heuristic for finding a feedback arc set for a graph.
-        // A feedback arc set is a set of edges that can be removed to make a graph acyclic.
-        ranker: undefined, // Type of algorithm to assign a rank to each node in the input graph. Possible values: 'network-simplex', 'tight-tree' or 'longest-path'
-        minLen: function (edge) {
-          return 3;
-        }, // number of ranks to keep between the source and target of the edge
-        edgeWeight: function (edge) {
-          return 3;
-        }, // higher weight edges are generally made shorter and straighter than lower weight edges
-        // general layout options
-        fit: true, // whether to fit to viewport
-        padding: 10, // fit padding
-        spacingFactor: undefined, // Applies a multiplicative factor (>0) to expand or compress the overall area that the nodes take up
-        nodeDimensionsIncludeLabels: true, // whether labels should be included in determining the space used by a node
-        animate: true, // whether to transition the node positions
-        animateFilter: function (node, i) {
-          return true;
-        }, // whether to animate specific nodes when animation is on; non-animated nodes immediately go to their final positions
-        animationDuration: 500, // duration of animation in ms if enabled
-        animationEasing: undefined, // easing of animation if enabled
-        boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
-        transform: function (node, pos) {
-          return pos;
-        }, // a function that applies a transform to the final node position
-
-        stop: function () {}, // on layoutstop
-      };
+     
       var cy = cytoscape({
         container: document.getElementById("cy"),
 
@@ -512,176 +449,9 @@ export default {
           edges: this.edges,
         },
 
-        layout: layout,
+        layout: fcose_layout, // dagre_layout
 
-        style: [
-          {
-            selector: "node",
-            style: {
-              content: function (node) {
-                const type =
-                  node.data("type")[0].toUpperCase() +
-                  node.data("type").slice(1);
-                return node.data("label") == "parent"
-                  ? `${type} (${node.data("id")})`
-                  : node.data("name")
-                  ? `${node.data("name")}`
-                  : `${node.data("id")}`;
-              },
-              "text-valign": "top",
-              "text-halign": "center",
-              "text-margin-y": -6,
-              // 'text-margin-x': -25,
-              "font-size": 18,
-              "text-wrap": "wrap",
-              "text-rotation": "autorotate",
-              "background-image": "data(url)",
-              shape: "rectangle",
-              "background-fit": "cover",
-              height: "50px",
-              width: "50px",
-            },
-          },
-          {
-            selector: ":parent",
-            style: {
-              // width: 4,
-              shape: "roundrectangle",
-              "border-width": "5px",
-              "border-radius": "20%",
-              "text-valign": "top",
-              "text-halign": "left",
-              "background-color": "#fff",
-              // "border-color": "#be0e8d",
-              "border-color": function (node) {
-                const type = node.data("type");
-                return type == "account_id"
-                  ? "#000"
-                  : type == "region"
-                  ? "#11789a"
-                  : type == "structure"
-                  ? "green"
-                  : type.includes("tag.")
-                  ? "#f1860b"
-                  : type.includes("resourceGroup")
-                  ? "#2794a5"
-                  : "#be0e8d";
-              },
-              "text-margin-x": 20,
-              "text-margin-y": -15,
-              "font-size": "22px",
-              "font-weight": 700,
-              padding: "35px",
-              content: function (node) {
-                const type = node.data("type");
-                const id = node.data("id");
-                return node.data("label") == "parent"
-                  ? `${node.data("text")} ( $${node.data(
-                      "cost_for_month"
-                    )} USD/month )`
-                  : type == "account_id"
-                  ? `Account (${id})`
-                  : type == "region"
-                  ? `Region (${id})`
-                  : type == "structure"
-                  ? `${id}`
-                  : node.data("name");
-              },
-              "background-position-x": "0",
-              "background-position-y": "0",
-              "background-fit": "none",
-            },
-          },
-          {
-            selector: ".hidden",
-            css: {
-              display: "none",
-            },
-          },
-          {
-            selector: ":selected",
-            style: {
-              "background-color": "#adadad",
-              "line-color": "#adadad",
-              "target-arrow-color": "#adadad",
-              "source-arrow-color": "#adadad",
-              "border-color": "#adadad",
-              "border-width": "3px",
-            },
-          },
-          {
-            selector: "edge",
-            style: {
-              width: 2,
-              "target-arrow-shape": "triangle",
-              // 'source-arrow-shape': 'triangle',
-              "line-color": "#adadad",
-              "target-arrow-color": "#adadad",
-              "curve-style": "straight",
-            },
-          },
-          {
-            selector: "node.highlight",
-            style: {
-              "border-color": "rgb(96, 178, 240)",
-              "border-width": "4px",
-              opacity: "1",
-              // height: "52px",
-              // width: "52px",
-            },
-          },
-          {
-            selector: "node.clickstyle",
-            style: {
-              "border-color": "rgb(96, 178, 240)",
-              "border-width": "4px",
-              // height: "52px",
-              // width: "52px",
-            },
-          },
-          {
-            selector: "node.notfilter",
-            style: {
-              // opacity: "0.5",
-              color: "red",
-            },
-          },
-          {
-            selector: "node.fitfilter",
-            style: {
-              width: "60px",
-              height: "60px",
-            },
-          },
-          {
-            selector: "node.semitransp",
-            style: { opacity: "0.5" },
-          },
-          {
-            selector: "edge.highlight",
-            style: {
-              width: 5,
-              "mid-target-arrow-color": "#FFF",
-              "line-color": "rgb(96, 178, 240)",
-              "target-arrow-color": "rgb(96, 178, 240)",
-            },
-          },
-          {
-            selector: "edge.clickstyle",
-            style: {
-              width: 5,
-              "mid-target-arrow-color": "#FFF",
-              "line-color": "rgb(96, 178, 240)",
-              "target-arrow-color": "rgb(96, 178, 240)",
-            },
-          },
-          {
-            selector: "edge.semitransp",
-            style: {
-              opacity: "0.5",
-            },
-          },
-        ],
+        style: cytoStyle,
         ready: function () {
           cy = this;
           cy.filter("node[label = 'parent']").data("isShow", false);
@@ -689,9 +459,61 @@ export default {
           //   parent: "Back-end"
           // })
           cy.filter("node[label = 'parent'][!isShow]").addClass("hidden");
-
-          // cy.nodes("[id = 'Processing']").removeClass("hidden")
         },
+      });
+
+      function grouping() {
+        _this.ResourceTypeResult.map((val, i) => {
+          cy.add({
+            data: {
+              type: val,
+              id: `${val}-${i}`,
+              name: val,
+              label: "parent",
+              group: "group",
+              text: val,
+              url: _this.Mappingimg(val),
+            },
+          });
+          let nodes = cy.filter(function (element) {
+            return (
+              element.isOrphan() &&
+              element.data("type") == val &&
+              element.neighborhood().length == 0 &&
+              !element.isParent()
+            );
+          });
+          nodes.move({
+            parent: `${val}-${i}`,
+          });
+        });
+        cy.filter(function (element) {
+          return element.data("group") == "group" && !element.isParent();
+        }).remove();
+      }
+
+      $("#AddNode").click(function () {
+        // cy.add({
+        //   data: {
+        //     type: _this.selectedNode,
+        //     id: `${_this.selectedNode}[2]`,
+        //     name: _this.selectedNode,
+        //     mode: "test",
+        //   },
+        // });
+        // let img_url = _this.Mappingimg(_this.selectedNode);
+        // // cy.$(`#${_this.selectedNode}[2]`).data("url", img_url)
+        // cy.filter(`node[id='${_this.selectedNode}[2]']`).map((ele) => {
+        //   ele.data("url", img_url);
+        //   // console.log(ele.data("id"), ele.data("url"))
+        // });
+
+        const group = async () => {
+          await grouping();
+          await cy.layout(fcose_layout).run();
+        };
+        group();
+        // console.log(cy.filter(`node[id='${_this.selectedNode}[2]']`).data("url"))
       });
 
       $("#filter_apply").click(function () {
@@ -715,7 +537,7 @@ export default {
             edges: _this.edges,
           },
         });
-        cy.nodes().removeClass("notfilter", "highlight");
+        cy.nodes().removeClass("notfilter", "highlight", "income_highlight");
 
         function AddqueryString() {
           var string = "";
@@ -1030,7 +852,6 @@ export default {
               });
               pp = pp.difference(test);
               console.log(pp);
-              
             });
 
             console.log("structureNode", structureNode);
@@ -1111,78 +932,96 @@ export default {
           // console.log(eles.data("text") ,totalCost, eles.data("cost_for_month"))
         });
 
-        cy.layout(layout).run();
+        cy.layout(fcose_layout).run();
       });
 
-      $("#testMutiFilter").click(function () {
-        testMutiFilter();
+      // expand / collapse
+
+      // use expandcollapse extension:
+      var api = cy.expandCollapse({
+        layoutBy: fcose_layout, // 用於展開/折疊後的重新排列。它只是佈局選項或整個佈局功能。選擇你的身邊！
+        fisheye: true, // 展開/折疊後是否進行魚眼查看 你可以指定一個函數 too
+        animate: true, // 是否在繪圖變化時動畫 你可以指定一個函數 too
+        undoable: true, // 如果存在 undoRedoExtension，
+
+        cueEnabled: true, // 是否啟用
+        expandCollapseCuePosition: "top-right", // 默認 cue 位置是左上角 你也可以為每個節點指定一個函數
+        expandCollapseCueSize: 12, // 展開折疊 cue 的大小
+        expandCollapseCueLineSize: 8, // 用於繪製加減圖標的線條大小
+        expandCueImage: undefined, // 如果未定義則展開圖標的圖像繪製常規展開提示
+        collapseCueImage: undefined, // 如果未定義則折疊圖標的圖像繪製常規折疊提示
+        expandCollapseCueSensitivity: 1, // 展開-折疊提示的靈敏度
+        allowNestedEdgeCollapse: true,
+        expandCueImage:
+          "https://raw.githubusercontent.com/iVis-at-Bilkent/cytoscape.js-expand-collapse/master/demo/icon-plus.png",
+        collapseCueImage:
+          "https://raw.githubusercontent.com/iVis-at-Bilkent/cytoscape.js-expand-collapse/master/demo/icon-minus.png",
       });
-      function testMutiFilter() {
-        console.log("click");
-        const query = `node[ tag.Application = 'Processing'][tag.Project = 'Clouday1']`;
-        const checkFilterType = cy.filter(`node[?tag.Application][?Project]`);
-        let filteredNodes = cy.nodes(query);
-        // filteredNodes.map(function(ele) {
-        //   console.log(ele.data("name"))
-        // })
-        const graphElements = checkFilterType
-          .merge(checkFilterType.outgoers())
-          .merge(checkFilterType.incomers())
-          .merge(checkFilterType.parent());
 
-        cy.elements().remove();
-        cy.add(graphElements);
-
-        let collection1 = cy.collection();
-        cy.nodes().map(function (ele) {
-          _this.filterVal.forEach((value) => {
-            if (ele.data(`${_this.filterType}`) == value) {
-              collection1 = ele.union(ele.parent());
-              collection1.filter("node[^parent]").move({
-                parent: value,
-              });
-            }
-          });
-        });
-        const fitQueryElements = graphElements.filter(
-          `node[label != 'parent'][?${_this.filterType}]`
-        );
-        fitQueryElements.map(function (ele) {
-          console.log(ele.data("name"), ele.data(`${_this.filterType}`));
-        });
-        graphElements.difference(fitQueryElements).addClass("notfilter");
-      }
-  
       cy.on("mouseover", "node", function (e) {
         var sel = e.target;
-        // cy.elements()
-        //   .difference(sel.outgoers())
-        //   .not(sel)
-        //   .addClass("semitransp");
-        sel.addClass("highlight").outgoers().addClass("highlight");
+        cy.elements()
+          .difference(sel.outgoers())
+          .difference(sel.incomers())
+          .difference(sel.parent())
+          .difference(sel.children())
+          .not(sel)
+          .addClass("semitransp");
+        sel.incomers().addClass("income_highlight");
+        sel
+          .addClass("target_highlight")
+          .outgoers()
+          .addClass("target_highlight");
       });
 
       cy.on("mouseout", "node", function (e) {
         var sel = e.target;
-        // cy.elements().removeClass("semitransp");
-        sel.removeClass("highlight").outgoers().removeClass("highlight");
+        cy.elements().removeClass("semitransp");
+        sel
+          .removeClass("target_highlight")
+          .outgoers()
+          .removeClass("target_highlight");
+        sel.incomers().removeClass("income_highlight");
       });
       cy.on("tap", function (event) {
         if (event.target === cy) {
-          cy.elements().removeClass("clickstyle");
+          cy.elements().removeClass("click_semitransp");
+          cy.elements().removeClass("target_clickstyle");
+          cy.elements().removeClass("income_clickstyle");
           _this.isRightSidebarOpen = false;
         }
       });
       cy.on("tap", "node", function (e) {
+        var sel = e.target;
         _this.isRightSidebarOpen = true;
         if (_this.isRightSidebarOpen) {
         }
-        cy.elements().removeClass("clickstyle");
+        cy.elements().removeClass("click_semitransp");
+        cy.elements().removeClass("target_clickstyle");
+        cy.elements().removeClass("income_clickstyle");
 
-        e.target.addClass("clickstyle").outgoers().addClass("clickstyle");
+        sel
+          .addClass("target_clickstyle")
+          .outgoers()
+          .addClass("target_clickstyle");
+        sel.incomers().addClass("income_clickstyle");
+        cy.elements()
+          .difference(sel.outgoers())
+          .difference(sel.incomers())
+          .difference(sel.parent())
+          .difference(sel.children())
+          .not(sel)
+          .addClass("click_semitransp");
+
         // console.log(this.nodes+"nodes")
 
-        const filterOpt = ["id", "parent", "account_id", "fitQuery", "fitParent"];
+        const filterOpt = [
+          "id",
+          "parent",
+          "account_id",
+          "fitQuery",
+          "fitParent",
+        ];
         this.targetNode = e.target.data();
         _this.newTargetObj = {};
         for (var i in this.targetNode) {
@@ -1200,6 +1039,7 @@ export default {
         // console.log(JSON.stringify(_this.newTargetObj))
       });
 
+      // navga
       var defaults = {
         container: false, // html dom element
         viewLiveFramerate: 0, // set false to update graph pan only on drag end; set 0 to do it instantly; set a number (frames per second) to update not more than N times per second
@@ -1209,8 +1049,29 @@ export default {
         removeCustomContainer: false, // destroy the container specified by user on plugin destroy
         rerenderDelay: 100, // ms to throttle rerender updates to the panzoom for performance
       };
-
       var nav = cy.navigator(defaults);
+
+      // connect
+      // the default values of each option are outlined below:
+      let connectdefaults = {
+        canConnect: function (sourceNode, targetNode) {
+          // whether an edge can be created between source and target
+          return !sourceNode.same(targetNode); // e.g. disallow loops
+        },
+        edgeParams: function (sourceNode, targetNode) {
+          // for edges between the specified source and target
+          // return element object to be passed to cy.add() for edge
+          return {};
+        },
+        hoverDelay: 150, // time spent hovering over a target node before it is considered selected
+        snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
+        snapThreshold: 50, // the target node must be less than or equal to this many pixels away from the cursor/finger
+        snapFrequency: 15, // the number of times per second (Hz) that snap checks done (lower is less expensive)
+        noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
+        disableBrowserGestures: true, // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
+      };
+
+      let eh = cy.edgehandles(connectdefaults);
     },
   },
   async mounted() {
@@ -1263,16 +1124,14 @@ export default {
 </script>
 
 <style lang="scss">
-
 </style>
 
 
 <style lang="scss" scoped>
-
 .b-nav.navbar {
-    // display: none !important;
-    // margin-left: 50px;
-    justify-content: flex-end !important;
+  // display: none !important;
+  // margin-left: 50px;
+  justify-content: flex-end !important;
 }
 
 #cy {
@@ -1379,7 +1238,7 @@ main {
     color: rgb(215, 161, 91);
   }
   input {
-    max-width: 150px;
+    width: 50%;
     color: #639c5a;
     &[disabled] {
       color: #939794;
@@ -1403,7 +1262,7 @@ main {
     height: 40px;
   }
   .titleAndType input {
-    max-width: 100%;
+    width: 100%;
     font-weight: bold;
     color: #595a5a;
     font-size: 18px;
@@ -1424,7 +1283,7 @@ main {
   border-radius: 50%;
   background: rgb(8, 118, 165);
   .b-icon {
-    font-size: 100%;
+    font-size: 20xp;
     vertical-align: text-top;
     color: white;
   }

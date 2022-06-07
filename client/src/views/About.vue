@@ -432,7 +432,7 @@ export default {
       showTop: false,
       marginTop: "0px",
       form: {
-        user_id: "12345",
+        user_id: "2345",
       },
       isBusy: true,
       accountData: [],
@@ -527,6 +527,8 @@ export default {
           regions: [
             { region: "us-east-2", label: "us-east-2 (Ohio)" },
             { region: "us-west-2", label: "us-west-2 (Oregon)" },
+            { region: "us-east-1", label: "us-east-1 (Ohio)" },
+            { region: "us-west-1", label: "us-west-1 (Ohio)" },
           ],
         },
       ],
@@ -548,13 +550,14 @@ export default {
       this.currentPage = 1;
     },
     updateArch(item, requestID) {
+      const BASE_URL = "http://localhost:8080" //44.237.111.172
       this.updateName = item.account_name
       this.showTop = true
       this.marginTop = "35px"
       this.Isupdating = true
       console.log(item);
       axios
-        .post("http://44.237.111.172/update", { requestID: requestID })
+        .post(BASE_URL + "/update", { requestID: requestID })
         .then((res) => {
           this.Isupdating = false
           console.log(res);
@@ -642,7 +645,7 @@ export default {
       // Prevent modal from closing
       bvModalEvent.preventDefault();
       // this.form.Region = []
-      this.form.user_id = "12345";
+      this.form.user_id = "2345";
       console.log(this.form.region.length);
       // Trigger submit handler
       this.onSubmit();
@@ -651,11 +654,12 @@ export default {
       this.form = {
         region: [],
         aws_session_token: "",
-        user_id: "12345",
+        user_id: "2345",
       };
       this.state = null;
     },
     onSubmit() {
+      const BASE_URL = "http://localhost:8080"
       if (!this.checkFormValidity()) {
         return;
       } else if (this.form.region.length == 0) {
@@ -673,7 +677,7 @@ export default {
       console.log("sideloading", this.isProcessing)
 
       axios
-        .post("http://44.237.111.172/newPost", this.form, {})
+        .post(BASE_URL + "/newPost", this.form, {})
         .then((res) => {
           console.log(res);
           if (res.status == 200) {
@@ -704,7 +708,7 @@ export default {
       try {
         // this.loading = true
         axios
-          .get(ddbURL, { params: { user_id: "12345" } })
+          .get(ddbURL, { params: { user_id: "2345" } })
           .then((res) => {
             this.accountData = JSON.parse(res.data.message);
             console.log("this.accountData", this.accountData)
