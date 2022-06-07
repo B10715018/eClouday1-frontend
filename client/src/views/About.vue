@@ -1,21 +1,21 @@
 <template>
   <div class="about d-flex">
     <nav-bar />
-    <div class="container">
-      <h3 class="text-gray">
+    <div class="container" >
+      <h3 class="text-gray" :style="{'margin-top': marginTop}">
         Architecture<b-icon icon="chevron-compact-right"></b-icon>
         <strong class="text-primary">AWS</strong>
       </h3>
       <hr />
 
       <!-- page-content -->
-      <div class="d-flex justify-content-between py-3 mb-1">
-        <h4 class="fw-bold">Imported Accounts</h4>
+      <div class="d-flex py-3 mb-1">
+        <h4 class="fw-bold mr-4">Imported Accounts</h4>
         <b-button variant="outline-secondary" v-b-modal.add-account
           ><b-icon icon="plus-square" class="mr-1"></b-icon> New
           Account</b-button
         >
-        <!-- modal start -->
+        <!-- add account modal start -->
         <b-modal
           class="modal"
           id="add-account"
@@ -207,29 +207,89 @@
         </b-modal>
         <!-- modal end -->
 
-        <!-- second modal -->
+        <!-- loading modal start -->
         <b-modal
           id="modal-1"
+          class="loadingModal"
           ref="sending-modal"
-          :no-close-on-backdrop="true"
+          no-close-on-backdrop="true"
           hide-footer="true"
           hide-header-close="true"
+          v-model="loadingmodalShow"
+          centered
         >
-          <div class="loading">
-            <div class="span-container">
-              <span class="one"></span>
-              <span class="two"></span>
-              <span class="three"></span>
-              <span class="four"></span>
-            </div>
-            <h5 class="fw-bold mt-3 text-center">Importing your data...</h5>
-            <p class="text-center text-gray">
-              <i class="bi bi-exclamation-triangle-fill warning-text"></i>
-              This process could take serveral minutes. <br />To avoid losing
-              progress, don't close this browser tab.
-            </p>
-          </div>
+        <div class="text-center">
+          <b-spinner label="Loading..."></b-spinner>
+        </div>
         </b-modal>
+
+        <b-toast
+          class="toast"
+          id="sending-modal"
+          variant=""
+          solid
+          no-auto-hide
+          :visible="isProcessing"
+        >
+          <template #toast-title>
+            <div class="d-flex flex-grow-1 align-items-baseline">
+              <b-img
+                blank
+                blank-color="#ff5555"
+                class="mr-2"
+                width="12"
+                height="12"
+              ></b-img>
+              <strong class="mr-auto">New Imported</strong>
+              <!-- <small class="text-muted mr-2">42 seconds ago</small> -->
+            </div>
+          </template>
+          <div class="data-loading px-2 ">
+            <div v-if="!ProcessingFinish" class="d-flex align-items-center">
+              <div class="span-container mr-3">
+                <span class="one"></span>
+                <span class="two"></span>
+                <span class="three"></span>
+                <span class="four"></span>
+              </div>
+              <p>
+                {{ archName }} is importing.<br />
+                This process could take serveral minutes.
+              </p>
+            </div>
+            <div v-else>
+              <p class="text-center link">
+                {{ archName }} has completed.<br />
+                you can check your Architecture.
+              </p>
+              <!-- <b-button @click="openArch(postId)">here</b-button> -->
+            </div>
+          </div>
+        </b-toast>
+        <!-- loading modal end -->
+
+        <!-- update madal -->
+        <b-alert
+         v-if="Isupdating"
+      v-model="showTop"
+      class="position-fixed fixed-top m-0 rounded-0 topAlert"
+      style="z-index: 0; left: 60px"
+      variant="warning"
+      dismissible
+    >
+     <p >{{ updateName }} is updating ...</p> 
+    </b-alert>
+    <b-alert
+    v-else
+      v-model="showTop"
+      class="position-fixed fixed-top m-0 rounded-0 topAlert"
+      style="z-index: 0; left: 60px"
+      variant="success"
+      dismissible
+    >
+     <p>{{ updateName }} is updated !</p> 
+
+    </b-alert>
         <!--  -->
       </div>
 
@@ -289,8 +349,8 @@
           :current-page="currentPage"
           :per-page="perPage"
           :filter="filter"
-          sort-by.sync="timestamp"
-          sort-desc.sync="false"
+          sort-by="timestamp"
+          sort-desc="false"
           stacked="md"
           :busy="isBusy"
           show-empty
@@ -321,13 +381,13 @@
               <b-icon
                 icon="trash"
                 class="delete-icon"
-                @click="deleteArch(row.index, row.item.requestID)"
+                @click="deleteArch(row.index, row.item.requestID, row.item.account_name)"
               ></b-icon>
-              <b-icon
+              <!-- <b-icon
                 icon="exclamation-circle"
                 class="exclamation-circle"
                 @click="showArchInfo(row.item)"
-              ></b-icon>
+              ></b-icon> -->
             </div>
           </template>
 
@@ -341,6 +401,10 @@
             </b-card>
           </template> -->
         </b-table>
+        <b-button class="console-link"
+          ><a href="#"
+            ><b-icon icon="bell"></b-icon></a
+        ></b-button>
       </b-container>
     </div>
   </div>
@@ -358,6 +422,15 @@ export default {
   },
   data() {
     return {
+      loadingmodalShow: false,
+      isProcessing: false,
+      ProcessingFinish: false,
+      archName: "",
+      postId: "",
+      updateName: "",
+      Isupdating: false,
+      showTop: false,
+      marginTop: "0px",
       form: {
         user_id: "12345",
       },
@@ -475,10 +548,15 @@ export default {
       this.currentPage = 1;
     },
     updateArch(item, requestID) {
+      this.updateName = item.account_name
+      this.showTop = true
+      this.marginTop = "35px"
+      this.Isupdating = true
       console.log(item);
       axios
         .post("http://44.237.111.172/update", { requestID: requestID })
         .then((res) => {
+          this.Isupdating = false
           console.log(res);
         })
         .catch((err) => {
@@ -499,8 +577,31 @@ export default {
       sessionStorage.setItem("item", JSON.stringify(params));
       window.open(route.href, "_blank");
     },
-    deleteArch(index, requestID) {
-      try {
+    deleteArch(index, requestID, account_name) {
+
+      this.$bvModal.msgBoxConfirm('Please confirm that you want to delete '+ account_name, {
+          title: 'Please Confirm',
+          size: 'sm',
+          buttonSize: 'sm',
+          okVariant: 'danger',
+          okTitle: 'YES',
+          cancelTitle: 'NO',
+          footerClass: 'p-2',
+          hideHeaderClose: false,
+          centered: true
+        })
+          .then(value => {
+            if(value == true) {
+              this.loadingmodalShow = true;
+              this.delete(requestID)
+            }
+          })
+          .catch(err => {
+            // An error occurred
+        })
+    },
+    delete(requestID) {
+         try {
         // this.loading = true
         axios
           .delete(
@@ -509,7 +610,12 @@ export default {
           )
           .then((res) => {
             if (res.data.message == "Successfully deleted") {
-              this.accountData.splice(index, 1);
+              this.accountData.forEach((val, i) => {
+                if (requestID == val.requestID) {
+                  this.accountData.splice(i, 1);
+                }
+              })
+              this.loadingmodalShow = false;
               console.log(requestID, res.data);
             } else {
               alert("Try again.");
@@ -556,14 +662,31 @@ export default {
         alert("Please select region.");
         return;
       }
-      this.$refs["sending-modal"].show();
+      console.log("bigloading", this.loadingmodalShow)
+      this.archName = this.form.account_name;
+      this.loadingmodalShow = true;
+      setTimeout(() => {
+      this.loadingmodalShow = false;
+      this.isProcessing = true;
+      }, 2000);
+      console.log("bigloading", this.loadingmodalShow)
+      console.log("sideloading", this.isProcessing)
+
       axios
         .post("http://44.237.111.172/newPost", this.form, {})
         .then((res) => {
           console.log(res);
-          this.$refs["sending-modal"].hide();
+          if (res.status == 200) {
+          this.postId = res.id;
+          this.ProcessingFinish = true;
+      console.log("finish", this.ProcessingFinish)
+
+          this.fetchData();
+          }
+          
         })
         .catch((err) => {
+          // alert("error")
           console.log(err);
         });
       // alert(JSON.stringify(this.form));
@@ -584,6 +707,7 @@ export default {
           .get(ddbURL, { params: { user_id: "12345" } })
           .then((res) => {
             this.accountData = JSON.parse(res.data.message);
+            console.log("this.accountData", this.accountData)
             // Set the initial number of items
             this.totalRows = this.accountData.length;
             this.isBusy = false;
@@ -612,9 +736,23 @@ export default {
   }
 }
 
+.link a {
+  text-decoration: underline;
+  color: #ecb300;
+}
+
 .org-description {
   margin-top: 50px;
 }
+
+.loadingModal .modal-content {
+  width: 50px;
+    border: 0;
+    background: "#fff0";
+    .modal-header {
+      border: 0;
+    }
+  }
 
 hr {
   border: 1px solid #e5e5e557;
@@ -623,6 +761,35 @@ hr {
 
 .text-primary {
   color: #202020 !important;
+}
+
+.alert {
+  padding: 0.75rem 1.25rem;
+p {
+  margin: 0;
+}
+}
+.b-toaster.b-toaster-top-right {
+  top: 50px
+}
+
+.console-link {
+  position: fixed;
+  right: 10px;
+  bottom: 20px;
+  border: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #db9a47;
+  .b-icon {
+    font-size: 18px;
+    vertical-align: text-top;
+    color: #fff;
+  }
+  &:hover {
+    background: #3c4547;
+  }
 }
 
 .description {
@@ -664,4 +831,10 @@ hr {
 section .card-body {
   padding: 1rem 1.25rem 0;
 }
+
+.toast {
+  z-index: 1;
+}
+
+
 </style>

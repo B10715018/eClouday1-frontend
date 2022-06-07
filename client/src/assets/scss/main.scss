@@ -129,7 +129,6 @@
   }
   
   /* icon */
-  
   .b-icon {
     cursor: pointer;
     &.openArch-icon {
@@ -150,9 +149,18 @@
   }
 
   // loading
+
+  .loadingModal .modal-content {
+    border: 0;
+    background: "#fff0";
+    .modal-header {
+      border: 0;
+    }
+  }
+
 .span-container {
-  width: 100px;
-  height: 100px;
+  width: 35px;
+  height: 35px;
   /* transform: translate(-50% -50%);
   position: absolute;
   top: 42%;

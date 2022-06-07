@@ -44,8 +44,7 @@
           >
             <b-icon icon="gear-fill"></b-icon>
           </b-button>
-		  </div>
-          <b-button
+		  <b-button
             @click="handleLogout"
             variant="info"
             class="my-2 my-sm-0 mx-1"
@@ -54,6 +53,8 @@
           >
             <b-icon icon="box-arrow-right"></b-icon>
           </b-button>
+		  </div>
+          
         </div>
       </template>
       <div class="px-2 py-2">
@@ -125,7 +126,7 @@ export default {
   data: function () {
     return {
       active: false,
-      isLeftSidebarOpen: true,
+      isLeftSidebarOpen: false,
     };
   },
   computed: {

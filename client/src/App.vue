@@ -1,15 +1,33 @@
 <template>
   
-    <!-- <div :style="{ 'margin-left': sidebarWidth }"> -->
-      <router-view />
-    <!-- </div> -->
+    <div>
+      <router-view  />
+
+      <!-- <div v-else>
+        <b-modal
+          class="loadingModal"
+          id="modal-1"
+          ref="sending-modal"
+          no-close-on-backdrop="true"
+          hide-footer="true"
+          hide-header-close="true"
+          v-model="loadingmodalShow"
+          centered
+        >
+        <div>
+          <b-spinner class="text-center" label="Loading..."></b-spinner>
+        </div>
+        </b-modal>
+      </div> -->
+      
+    </div>
 </template>
 
 <script>
 // import NavBar from "@/components/NavBar.vue";
 import NavBar from "@/components/Sidebar.vue";
 // import { sidebarWidth } from "@/components/sidebar/state";
-
+import { isLoggedIn, login } from "@/utils/auth-service";
 
 export default {
   name: "App",
@@ -18,11 +36,26 @@ export default {
   },
   data() {
     return {
-      sidebarWidth: "100px"
+      sidebarWidth: "100px",
+      loadingmodalShow: true
+    }
+  },
+  methods: {
+    isLoggedIn() {
+      return isLoggedIn();
     }
   },
   setup() {
-    return { sidebarWidth };
+    // return { sidebarWidth };
+  },
+  mounted () {
+    if ( !isLoggedIn() ) { 
+      console.log("not")
+      login(); 
+    } else { 
+      this.loadingmodalShow = false
+      console.log("isLoggedIn()",isLoggedIn())
+    }
   },
 };
 </script>
@@ -52,4 +85,12 @@ export default {
     }
   }
 }
+
+.loadingModal {
+    border: 0;
+    background: "#fff0";
+    .modal-header {
+      border: 0;
+    }
+  }
 </style>

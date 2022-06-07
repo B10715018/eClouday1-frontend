@@ -1,16 +1,16 @@
 <template>
   <div class=" d-flex">
     <nav-bar />
-    <div class="main-content">
-    <b-jumbotron header="Notes" lead="An example Vue.js app with Auth0" />
+    <div class="main-content" style="margin-left: 60px">
+    <b-jumbotron header="Welcome to Clouday1." lead="" />
 
     <b-container>
       <div class="auth-info" v-if="isLoggedIn()">
         <div class="label">
-          You are logged in.
+          
         </div>
         <hr/>
-        <b-row>
+        <!-- <b-row>
           <b-col>
             <b-badge variant="primary" class="label">
               id_token
@@ -27,7 +27,7 @@
           {{ getAccessToken() }}
           </span>
           </b-col>
-        </b-row>
+        </b-row> -->
       </div>
     </b-container>
     </div>

@@ -444,6 +444,14 @@ export default {
           title: "Resource-Group",
           url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Amazon-Resourece-Groups-and-Tags.png",
         },
+        {
+          title: "WAF",
+          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_AWS-WAF_32.png",
+        },
+        {
+          title: "ElbV2",
+          url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Elastic-Load-Balancing-ELB_light-bg.png",
+        },
       ];
       for (var i = 0; i < this.nodes.length; i++) {
         for (var j = 0; j < img.length; j++) {
