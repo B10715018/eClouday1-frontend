@@ -550,7 +550,7 @@ export default {
       this.currentPage = 1;
     },
     updateArch(item, requestID) {
-      const BASE_URL = "http://localhost:8080" //44.237.111.172
+      const BASE_URL = "http://127.0.0.1:5000" //44.237.111.172
       this.updateName = item.account_name
       this.showTop = true
       this.marginTop = "35px"
@@ -659,7 +659,7 @@ export default {
       this.state = null;
     },
     onSubmit() {
-      const BASE_URL = "http://localhost:8080"
+      const BASE_URL = "http://127.0.0.1:5000"
       if (!this.checkFormValidity()) {
         return;
       } else if (this.form.region.length == 0) {
