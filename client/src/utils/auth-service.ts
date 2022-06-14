@@ -7,7 +7,7 @@ const ID_TOKEN_KEY = "id_token";
 const ACCESS_TOKEN_KEY = "access_token";
 const CLIENT_ID = "kEzYNwd5BWLjuATfaIxoEirPI9Rx4DYU";
 const CLIENT_DOMAIN = "dev-byhdk2z6.us.auth0.com";
-const REDIRECT = "http://localhost:8080/callback";
+const REDIRECT = "http://44.237.111.172/callback";
 const SCOPE = "full_access";
 const AUDIENCE = "https://clouday1-demo.com";
 
