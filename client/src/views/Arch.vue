@@ -1,5 +1,5 @@
 <template>
-  <div id="box">
+  <div class="aws">
     <main :class="{ active: isLeftSidebarOpen }">
       <div class="d-flex">
         <div>
@@ -64,9 +64,158 @@
               </div>
             </b-dropdown-form>
           </b-dropdown>
-          <b-button id="AddNode" @click="AddNode()">Add</b-button>
+          <b-button id="checkComparisonNodes" v-b-toggle.sidebar-comparison
+            >Comparison</b-button
+          >
+           <b-sidebar id="sidebar-comparison" title="Group Comparison" shadow>
+            <div class="px-3 py-2 sidebar-comparison">
+              <b-form-group label="" label-for="tags-component-select">
+                <!-- Prop `add-on-change` is needed to enable adding tags vie the `change` event -->
+                <b-form-tags
+                  id="tags-component-select"
+                  v-model="compareNode_1"
+                  size="lg"
+                  class="mb-2"
+                  add-on-change
+                  no-outer-focus
+                >
+                  <template
+                    v-slot="{
+                      tags,
+                      inputAttrs,
+                      inputHandlers,
+                      disabled,
+                      removeTag,
+                    }"
+                  >
+                    <b-form-select
+                      v-bind="inputAttrs"
+                      v-on="inputHandlers"
+                      :disabled="disabled || comparisonList.length === 0"
+                      :options="availableOptions"
+                    >
+                      <template #first>
+                        <!-- This is required to prevent bugs with Safari -->
+                        <option disabled value="">Choose a tag...</option>
+                      </template>
+                    </b-form-select>
 
-          <!-- <b-button v-b-toggle.sidebar-1>Add</b-button>
+                    <ul
+                      v-if="tags.length > 0"
+                      class="list-inline d-inline-block my-2"
+                    >
+                      <li
+                        v-for="tag in tags"
+                        :key="tag"
+                        class="list-inline-item"
+                      >
+                        <b-form-tag
+                          @remove="removeTag(tag)"
+                          :title="tag"
+                          :disabled="disabled"
+                          variant="info"
+                          >{{ tag }}</b-form-tag
+                        >
+                      </li>
+                    </ul>
+                  </template>
+                </b-form-tags>
+              </b-form-group>
+
+              <!-- <div class="group">
+                <b-form-select
+                  v-model="compareNode_1"
+                  :options="comparisonList"
+                ></b-form-select>
+                {{ compareNode_1 }}
+              </div>
+              <div class="group">
+                <b-form-select
+                  v-model="compareNode_2"
+                  :options="comparisonList"
+                ></b-form-select>
+                {{ compareNode_2 }}
+              </div> -->
+              <b-button id="comparison">Compare</b-button>
+              <b-button id="clear-highlight" varient="danger"
+                >Clear highlight</b-button
+              >
+            </div>
+            <div class="py-2 px-1">
+              <b-badge
+                class="h6"
+                pill
+                href="#"
+                style="margin-left: 12px"
+                variant="warning"
+                v-if="compareNode_1[0] != null"
+                ><b-icon icon="exclamation-circle-fill"></b-icon>
+                {{ compareNode_1[0] }}</b-badge
+              >
+              <!-- <p class="h6" ></p> -->
+              <div
+                v-for="(value, index) in v1_notFit"
+                :key="index"
+                class="px-3 mb-1"
+              >
+                <a
+                  v-b-toggle="'collapse-' + index"
+                  class="custom-nav-item not-collapsed"
+                  >{{ index }} ( {{ value.length }} items )</a
+                >
+                <b-collapse :id="'collapse-' + index" class="mt-2">
+                  <div class="nav-subitem">
+                    <span
+                      v-for="v in value"
+                      :key="v"
+                      class="mb-1"
+                      style="display: block; font-size: 14px; margin-left: 8px"
+                      >{{ v }}</span
+                    >
+                  </div>
+                </b-collapse>
+              </div>
+              <hr />
+              <b-badge
+                class="h6"
+                pill
+                href="#"
+                style="margin-left: 12px"
+                variant="warning"
+                v-if="compareNode_1[0] != null"
+                ><b-icon icon="exclamation-circle-fill"></b-icon>
+                {{ compareNode_1[1] }}</b-badge
+              >
+              <!-- <p class="h6" style="margin-left: 12px">{{ compareNode_1[1] }}</p> -->
+              <div
+                v-for="(value2, index2) in v2_notFit"
+                :key="index2"
+                class="px-3 mb-1"
+              >
+                <a
+                  v-b-toggle="'collapse-' + index2"
+                  class="custom-nav-item not-collapsed"
+                  >{{ index2 }} ( {{ value2.length }} items )</a
+                >
+                <b-collapse :id="'collapse-' + index2" class="mt-2">
+                  <div class="nav-subitem">
+                    <span
+                      v-for="v in value2"
+                      :key="v"
+                      class="mb-1"
+                      style="display: block; font-size: 14px; margin-left: 8px"
+                      >{{ v }}</span
+                    >
+                  </div>
+                </b-collapse>
+              </div>
+            </div>
+          </b-sidebar>
+          <!-- <b-button id="AddNode" @click="AddNode()" class="mx-2"
+            >Edit your Architecture</b-button
+          > -->
+
+          <b-button v-b-toggle.sidebar-1 class="mx-2">Edit your Architecture</b-button>
           <b-sidebar id="sidebar-1" title="Add Resource" shadow>
             <div class="px-3 py-2">
               <b-form-select
@@ -76,7 +225,13 @@
               {{ selectedNode }}
             </div>
             <b-button id="AddNode" @click="AddNode()">Add</b-button>
-          </b-sidebar> -->
+          </b-sidebar>
+
+          <b-button id="grouping" class="mx-2"
+            >Group by Type</b-button
+          >
+
+         
         </div>
       </div>
       <div class="mt-2 filter-result">
@@ -88,7 +243,28 @@
       <!-- <button id="test">test</button> -->
 
       <div class="loading" v-if="loading">Loading...</div>
-      <div id="cy" v-else></div>
+      <div id="cy" v-else style="position: relative">
+        <div
+          style="
+            border-radius: 0 10px 0 0;
+            padding: 10px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background: gray;
+            min-width: 190px;
+            min-height: 80px;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+          "
+        >
+          <p class="text-light text-center mb-0">{{ nodeType }}</p>
+          <p class="text-light text-center mb-0">{{ nodeName }}</p>
+        </div>
+      </div>
       <!-- <div v-for="(value, key) in nodes" :key="key">
       <span>{{ value.data }}--{{ key }}</span>
     </div> -->
@@ -230,7 +406,11 @@ import dagre from "cytoscape-dagre";
 import edgehandles from "cytoscape-edgehandles";
 import fcose from "cytoscape-fcose";
 import expandCollapse from "cytoscape-expand-collapse";
-import { fcose_layout, dagre_layout, cytoStyle } from "@/components/cytoscape/handleStyle.js";
+import {
+  fcose_layout,
+  dagre_layout,
+  cytoStyle,
+} from "@/components/cytoscape/handleStyle.js";
 import { nodeImg } from "@/components/cytoscape/handleImg.js";
 
 cytoscape.use(expandCollapse);
@@ -248,6 +428,8 @@ export default {
   components: {},
   data() {
     return {
+      v1_notFit: {},
+      v2_notFit: {},
       nodes: [],
       edges: [],
       requestID: "",
@@ -255,15 +437,6 @@ export default {
       showFilterResult: false,
       loading: false,
       structureSelected: [],
-      structureOpt: [
-        { text: "Account", value: "account_id" },
-        { text: "Region", value: "region" },
-        { text: "Application", value: "tag.Application" },
-        { text: "Department", value: "tag.Department" },
-        { text: "Environment", value: "tag.Environment" },
-        { text: "Owner", value: "tag.Owner" },
-        { text: "Project", value: "tag.Project" },
-      ],
       AddNodeoption: [
         { text: "Lambda", value: "Lambda" },
         { text: "EC2", value: "EC2" },
@@ -282,12 +455,16 @@ export default {
       ResourceRegionResult: [],
       ResourceAccountID: [],
       ResourceRGResult: [],
+      subnetList: [],
+      vpcList: [],
       ResourceTag: [],
       filterOptions: [
         { value: null, text: "Attribute name", disabled: true },
         { value: "account_id", text: "Account" },
         { value: "region", text: "Region" },
         { value: "resourceGroup", text: "Resource-Group" },
+        { value: "subnet", text: "Subnet" },
+        { value: "vpc", text: "VPC" },
         {
           label: "Tag",
           options: [
@@ -315,7 +492,19 @@ export default {
       },
       disabledInput: true,
       isEdit: false,
+      comparisonList: [],
+      compareNode_1: "",
+      compareNode_2: "",
+      nodeType: "",
+      nodeName: "",
     };
+  },
+  computed: {
+    availableOptions() {
+      return this.comparisonList.filter(
+        (opt) => this.compareNode_1.indexOf(opt) === -1
+      );
+    },
   },
   watch: {
     filterType: function () {
@@ -347,6 +536,20 @@ export default {
         case "tag.Project":
           this.filterVal = this.tag.Project;
           break;
+        case "subnet":
+          this.filterVal = this.subnetList;
+          break;
+        case "vpc":
+          this.filterVal = this.vpcList;
+          break;
+      }
+    },
+    comparisonList: function () {
+      if (this.comparisonList.length < 2) {
+        (this.compareNode_1 = ""),
+          (this.compareNode_2 = ""),
+          (this.v1_notFit = {});
+        this.v2_notFit = {};
       }
     },
   },
@@ -437,7 +640,7 @@ export default {
     createCytoscape(_this) {
       cytoscape.warnings(false);
       // cytoscape({
-     
+
       var cy = cytoscape({
         container: document.getElementById("cy"),
 
@@ -483,6 +686,15 @@ export default {
               !element.isParent()
             );
           });
+          let cost_for_month = 0;
+          nodes.filter("node[?cost_for_month]").map((ele) => {
+            const cost = ele.data("cost_for_month");
+            cost_for_month = cost_for_month + cost;
+          });
+          cy.nodes(`#${val}-${i}`).data(
+            "cost_for_month",
+            Math.round((cost_for_month + Number.EPSILON) * 100) / 100
+          );
           nodes.move({
             parent: `${val}-${i}`,
           });
@@ -492,29 +704,87 @@ export default {
         }).remove();
       }
 
-      $("#AddNode").click(function () {
-        // cy.add({
-        //   data: {
-        //     type: _this.selectedNode,
-        //     id: `${_this.selectedNode}[2]`,
-        //     name: _this.selectedNode,
-        //     mode: "test",
-        //   },
-        // });
-        // let img_url = _this.Mappingimg(_this.selectedNode);
-        // // cy.$(`#${_this.selectedNode}[2]`).data("url", img_url)
-        // cy.filter(`node[id='${_this.selectedNode}[2]']`).map((ele) => {
-        //   ele.data("url", img_url);
-        //   // console.log(ele.data("id"), ele.data("url"))
-        // });
-
-        const group = async () => {
+       $("#grouping").click(function() {
+          const group = async () => {
           await grouping();
           await cy.layout(fcose_layout).run();
         };
         group();
-        // console.log(cy.filter(`node[id='${_this.selectedNode}[2]']`).data("url"))
+
+        cy.layout(fcose_layout).run();
+      })
+
+      $("#AddNode").click(function () {
+        cy.add({
+          data: {
+            type: _this.selectedNode,
+            id: `${_this.selectedNode}[2]`,
+            name: _this.selectedNode,
+            mode: "test",
+          },
+        });
+        let img_url = _this.Mappingimg(_this.selectedNode);
+        // cy.$(`#${_this.selectedNode}[2]`).data("url", img_url)
+        cy.filter(`node[id='${_this.selectedNode}[2]']`).map((ele) => {
+          ele.data("url", img_url);
+          // console.log(ele.data("id"), ele.data("url"))
+        });
+
+        // const group = async () => {
+        //   await grouping();
+        //   await cy.layout(fcose_layout).run();
+        // };
+        // group();
+
+        //
+        // let subnetArr = []
+        // const subnetNodes = cy.filter(function(ele){
+        //   return !ele.data("label") && ele.data("subnet") && ele.data("subnet").length > 0
+        // })
+        // subnetNodes.map((ele)=>{
+        //   console.log("Before subnetArr =====>",subnetArr)
+        //   let subnetVal = ""
+        //   ele.data("subnet").forEach((val, i) => {
+        //     if(i != ele.data("subnet").length-1) {
+        //       subnetVal += `${val.split("/")[1]} & `
+        //     } else {
+        //       subnetVal += `${val.split("/")[1]}`
+        //     }
+        //   })
+        //   console.log(ele.data("name"), subnetVal)
+        //   if(subnetArr.indexOf(subnetVal) == -1) {
+        //     console.log("not in arr", subnetArr.indexOf(subnetVal))
+        //     subnetArr.push(subnetVal)
+        //     // cy.add({
+        //     //   data: {
+        //     //     type: "subnet",
+        //     //     id: ele.data("subnet")[0],
+        //     //     label: "parent",
+        //     //     text: subnetVal
+        //     //   },
+        //     // })
+        //   }
+        //   if (ele.isChild()) {
+        //     const origin_parent = ele.parent()
+        //     ele.move({
+        //       parent: ele.data("subnet")[0]
+        //     })
+        //     cy.getElementById(subnetVal).move({
+        //       parent: origin_parent.data("id")
+        //     })
+        //   }
+        //     // ele.move({
+        //     //   parent: subnetVal
+        //     // })
+          
+        //   console.log("After subnetArr =====>",subnetArr)
+        // })
+        cy.layout(fcose_layout).run();
       });
+
+      function toUpperCase(val) {
+        return val.replace(/^./, val[0].toUpperCase());
+      }
 
       $("#filter_apply").click(function () {
         // const query = `node[tag.Application = 'Processing'][tag.Project = 'Clouday1']`;
@@ -538,6 +808,16 @@ export default {
           },
         });
         cy.nodes().removeClass("notfilter", "highlight", "income_highlight");
+        cy.filter(`node[?subnet],node[?vpc]`).move({
+          parent: null
+        })
+
+        function spiltFilterString(val) {
+          var p_type = val.split("=");
+          var p_val = p_type[1].split("'")[1];
+          return [p_type[0], p_val];
+          // [tag.Application, Clouday1]
+        }
 
         function AddqueryString() {
           var string = "";
@@ -563,7 +843,55 @@ export default {
 
           const queryNodes = cy.filter(queryString);
 
-          const queryNodes_col = cy.collection().union(queryNodes);
+          // 修改過的(ST)
+          let testCollection = cy.collection();
+          queryAry.forEach((val) => {
+            if (val.includes("?")) {
+              testCollection = testCollection.union(cy.filter(`node[${val}]`));
+              if (val.includes("vpc")) {
+                testCollection = testCollection.union(cy.filter("node[type='VPC']"))
+              } if (val.includes("subnet")) {
+                testCollection = testCollection.union(cy.filter("node[type='Subnet']"))
+              }
+            } else {
+              if (
+                spiltFilterString(val)[0] != "resourceGroup" &&
+                spiltFilterString(val)[0] != "subnet"
+              ) {
+                // if (spiltFilterString(val)[0] == "vpc") {
+                //   testCollection = testCollection.union(
+                //   cy.filter(`node[id='${spiltFilterString(val)[1]}'`)
+                //   );
+                // }
+                testCollection = testCollection.union(
+                  cy.filter(`node[${val}]`)
+                );
+              } else {
+                console.log("this is resourceGroup & subnet");
+                // if (spiltFilterString(val)[0] == "subnet") {
+                //   testCollection = testCollection.union(
+                //   cy.filter(`node[id='${spiltFilterString(val)[1]}'`)
+                //   );
+                // }
+                cy.nodes().map(function (ele) {
+                  if (
+                    ele.data(spiltFilterString(val)[0]) &&
+                    ele.data(spiltFilterString(val)[0]).length > 0 &&
+                    ele
+                      .data(spiltFilterString(val)[0])
+                      .indexOf(spiltFilterString(val)[1]) != -1
+                  ) {
+                    testCollection = testCollection.union(ele);
+                    console.log(ele.data("type"), ele.data("name"))
+                  }
+                });
+              }
+            }
+          });
+         
+          // 修改過的(END)
+
+          const queryNodes_col = cy.collection().union(testCollection);
           const graphElements = queryNodes_col
             .merge(queryNodes_col.outgoers())
             .merge(queryNodes_col.incomers())
@@ -575,7 +903,7 @@ export default {
           cy.add(graphElements);
 
           let structureNode = {};
-          queryNodes.map(function (ele) {
+          testCollection.map(function (ele) {
             ele.data("fitParent", []);
             ele.data("fitQuery", "");
             queryAry.map((value, i) => {
@@ -585,14 +913,16 @@ export default {
                 if (Object.keys(structureNode).indexOf(queryType) == -1) {
                   Object.assign(structureNode, { [`${queryType}`]: [] });
                 }
-                if (queryType == "resourceGroup") {
+                if (queryType == "resourceGroup" || queryType == "subnet") {
                   let RG_array = ele.data(queryType);
                   // console.log("RG_array", RG_array);
-                  RG_array.forEach((val) => {
-                    if (structureNode[queryType].indexOf(val) == -1) {
-                      structureNode[queryType].push(val);
-                    }
-                  });
+                  if (RG_array && RG_array.length > 0) {
+                    RG_array.forEach((val) => {
+                      if (structureNode[queryType].indexOf(val) == -1) {
+                        structureNode[queryType].push(val);
+                      }
+                    });
+                  }
                 } else {
                   if (
                     structureNode[queryType].indexOf(ele.data(queryType)) == -1
@@ -633,13 +963,6 @@ export default {
             // newAryCollection = [["tag.Application='...'", "tag.Application='...'"], ["tag.Project='...'", "tag.Project='...'"]]
           }
 
-          function spiltFilterString(val) {
-            var p_type = val.split("=");
-            var p_val = p_type[1].split("'")[1];
-            return [p_type[0], p_val];
-            // [tag.Application, Clouday1]
-          }
-
           function toUpperCase(val) {
             return val.replace(/^./, val[0].toUpperCase());
           }
@@ -659,94 +982,6 @@ export default {
             return array;
           }
 
-          function checkIsFilterNode2(val, val2) {
-            return cy.filter(`node[id=${spiltFilterString(val)[1]}]`).empty &&
-              cy.filter(`node[id=${spiltFilterString(val2)[1]}]`).empty
-              ? cy.add([
-                  {
-                    data: {
-                      type: spiltFilterString(val)[0],
-                      id: `${spiltFilterString(val)[0]}:${
-                        spiltFilterString(val)[1]
-                      }`,
-                      label: "parent",
-                    },
-                  },
-                  {
-                    data: {
-                      type: spiltFilterString(val2)[0],
-                      id: `${spiltFilterString(val2)[0]}:${
-                        spiltFilterString(val2)[1]
-                      }`,
-                      label: "parent",
-                    },
-                  },
-                ])
-              : cy.filter(`node[id=${spiltFilterString(val)[1]}]`).empty
-              ? cy.add({
-                  data: {
-                    type: spiltFilterString(val)[0],
-                    id: `${spiltFilterString(val)[0]}:${
-                      spiltFilterString(val)[1]
-                    }`,
-                    label: "parent",
-                  },
-                })
-              : cy.filter(`node[id=${spiltFilterString(val2)[1]}]`).empty
-              ? cy.add({
-                  data: {
-                    type: spiltFilterString(val2)[0],
-                    id: `${spiltFilterString(val2)[0]}:${
-                      spiltFilterString(val2)[1]
-                    }`,
-                    label: "parent",
-                  },
-                })
-              : console.log("has nodes");
-          }
-
-          function checkIsFilterNode(val, val2) {
-            if (cy.filter(`node[id=${spiltFilterString(val)[1]}]`).empty) {
-              cy.add({
-                data: {
-                  type: spiltFilterString(val)[0],
-                  id: `${spiltFilterString(val)[1]}`,
-                  label: "parent",
-                  text: `${spiltFilterString(val)[0]}:${
-                    spiltFilterString(val)[1]
-                  }`,
-                },
-              });
-            }
-            if (
-              spiltFilterString(val2)[0] != "tag.Application" &&
-              cy.filter(`node[id=${spiltFilterString(val2)[1]}]`).empty
-            ) {
-              cy.add({
-                data: {
-                  type: spiltFilterString(val2)[0],
-                  id: `${spiltFilterString(val2)[1]}`,
-                  label: "parent",
-                  text: `${spiltFilterString(val2)[0]}:${
-                    spiltFilterString(val2)[1]
-                  }`,
-                },
-              });
-            }
-            if (spiltFilterString(val)[0] == "tag.Application") {
-              cy.add({
-                data: {
-                  type: spiltFilterString(val2)[0],
-                  id: `${spiltFilterString(val2)[1]}`,
-                  label: "parent",
-                  text: `${spiltFilterString(val2)[0]}:${
-                    spiltFilterString(val2)[1]
-                  }`,
-                },
-              });
-            }
-          }
-
           newAryCollection = testAry();
           if (queryAry.length > 1) {
             let outfitParent = [];
@@ -755,48 +990,103 @@ export default {
               value.forEach((val, i) => {
                 let queryNodesWithParent = cy.collection();
                 console.log("===", val, "===");
-                cy.add({
-                  data: {
-                    type: spiltFilterString(val)[0],
-                    id: `${spiltFilterString(val)[1]}${i}`,
-                    label: "parent",
-                    text: `${toUpperCase(spiltFilterString(val)[0])}:${
-                      spiltFilterString(val)[1]
-                    }`,
-                  },
-                });
 
-                let fitQueryNodes;
-                if (spiltFilterString(val)[0] == "resourceGroup") {
-                  console.log("get resourceGroup");
-                  fitQueryNodes = queryNodes.filter(function (element) {
-                    return (
-                      element
-                        .data("resourceGroup")
-                        .indexOf(spiltFilterString(val)[1]) != -1
-                    );
-                  });
+                if (
+                  spiltFilterString(val)[0] == "vpc" ||
+                  spiltFilterString(val)[0] == "subnet"
+                ) {
+                  console.log("===", spiltFilterString(val)[0], spiltFilterString(val)[0]!= "vpc", "===");
+                  const subnetNodes = cy.filter(function(ele){
+                    return !ele.data("label") && ele.data(spiltFilterString(val)[0]) && ele.data(spiltFilterString(val)[0]).length > 0
+                  })
+
+                  subnetNodes.map((ele)=>{
+                      if (ele.isChild()) {
+                      const origin_parent = ele.parent()
+                      ele.move({
+                        parent: ele.data(spiltFilterString(val)[0])[0]
+                      })
+                      cy.getElementById(ele.data(spiltFilterString(val)[0])[0]).move({
+                        parent: origin_parent.data("id")
+                      })
+                    } else {
+                      ele.move({
+                        parent: ele.data(spiltFilterString(val)[0])[0]
+                      })
+                    }
+                  })
+                  // cy.add({
+                  //   data: {
+                  //     type: toUpperCase(spiltFilterString(val)[0]),
+                  //     id: spiltFilterString(val)[1],
+                  //     label: "parent",
+                  //     text: `${toUpperCase(
+                  //       spiltFilterString(val)[0]
+                  //     )}:${spiltFilterString(val)[1].split("/")[1]}`,
+                  //   },
+                  // });
+
                 } else {
-                  fitQueryNodes = queryNodes.filter(`node[${val}]`);
+                  cy.add({
+                    data: {
+                      type: spiltFilterString(val)[0],
+                      id: `${spiltFilterString(val)[0]}-${
+                        spiltFilterString(val)[1]
+                      }-${i}`,
+                      label: "parent",
+                      text: `${toUpperCase(spiltFilterString(val)[0])}:${
+                        spiltFilterString(val)[1]
+                      }`,
+                    },
+                  });
+                }
+
+                let fitQueryNodes = cy.collection();
+                if (
+                  spiltFilterString(val)[0].toLowerCase() == "resourcegroup" ||
+                  spiltFilterString(val)[0].toLowerCase() == "subnet"
+                ) {
+                  console.log("get resourceGroup or subnet");
+                  testCollection.map((element) => {
+                    if (
+                      element.data(spiltFilterString(val)[0]) &&
+                      element.data(spiltFilterString(val)[0]).length > 0 &&
+                      element
+                        .data(spiltFilterString(val)[0])
+                        .indexOf(spiltFilterString(val)[1]) != -1
+                    ) {
+                      // console.log(element.data(spiltFilterString(val)[0]))
+                      fitQueryNodes = fitQueryNodes.union(element);
+                    }
+                  });
+                  // fitQueryNodes = testCollection.filter(function (element) {
+                  //   return (
+                  //     element
+                  //       .data(spiltFilterString(val)[0])
+                  //       .indexOf(spiltFilterString(val)[1]) != -1
+                  //   );
+                  // });
+                } else {
+                  fitQueryNodes = testCollection.filter(`node[${val}]`);
                 }
 
                 queryNodesWithParent = fitQueryNodes.union(
                   fitQueryNodes.parent().filter("node[^label]")
                 );
                 queryNodesWithParent.map((ele) => {
-                  console.log("----", ele.data("name"), "----");
+                  // console.log("----", ele.data("name"), "----");
                   var fitParent = ele.data("fitParent");
                   var string = ele.data("fitQuery");
                   // console.log("testtest",ele.data("fitParent"))
                   if (fitParent != undefined) {
-                    fitParent.push(`${spiltFilterString(val)[1]}${i}`);
+                    fitParent.push(`${spiltFilterString(val)[1]}`);
                     ele.data("fitParent", fitParent);
                     string += `[${spiltFilterString(val)[0]}='${
                       spiltFilterString(val)[1]
                     }']`;
                     ele.data("fitQuery", string);
                   } else {
-                    ele.data("fitParent", [`${spiltFilterString(val)[1]}${i}`]);
+                    ele.data("fitParent", [`${spiltFilterString(val)[1]}`]);
                     ele.data(
                       "fitQuery",
                       `[${spiltFilterString(val)[0]}='${
@@ -804,16 +1094,16 @@ export default {
                       }']`
                     );
                   }
-                  console.log(
-                    ele.data("name"),
-                    "fitParent:",
-                    ele.data("fitParent")
-                  );
-                  console.log(
-                    ele.data("name"),
-                    "fitQuery:",
-                    ele.data("fitQuery")
-                  );
+                  // console.log(
+                  //   ele.data("name"),
+                  //   "fitParent:",
+                  //   ele.data("fitParent")
+                  // );
+                  // console.log(
+                  //   ele.data("name"),
+                  //   "fitQuery:",
+                  //   ele.data("fitQuery")
+                  // );
                   outfitParent = toString(outfitParent, ele.data("fitParent"));
                   // if (toString(outfitParent, ele.data("fitParent")) == false) {
                   //   outfitParent.push(ele.data("fitParent"))
@@ -832,14 +1122,47 @@ export default {
             });
             console.log("outfitfitQuery", outfitfitQuery);
 
-            let pp = queryNodes;
-            outfitfitQuery.map((val) => {
-              const nodes = queryNodes.filter(`node${val}`);
+            let pp = testCollection;
+            outfitfitQuery.map((val, index) => {
+              let nodes = cy.collection();
+              let splitFitquery;
+              splitFitquery = val.split(/\[|\]/).filter((i) => i && i.trim());
+              splitFitquery.forEach((e) => {
+                // console.log("eee", spiltFilterString(e)[0].toLowerCase());
+                if (
+                  spiltFilterString(e)[0] != "resourceGroup" ||
+                  spiltFilterString(e) != "subnet"
+                ) {
+                  nodes = nodes.union(testCollection.filter(`node${val}`));
+                } else {
+                  console.log("this is rg or subnet");
+
+                  testCollection.map((ele) => {
+                    if (
+                      ele.data(spiltFilterString(e)[0]) &&
+                      ele.data(spiltFilterString(e)[0]).length > 0 &&
+                      ele
+                        .data(spiltFilterString(e)[0])
+                        .indexOf(spiltFilterString(e)[1]) != -1
+                    ) {
+                      nodes = nodes.union(ele);
+                    }
+                  });
+                }
+              });
+              // const nodes = testCollection.filter(`node${val}`);
+
               let test = nodes.union(nodes.parent());
+              // console.log(
+              //   "spiltFilterString",
+              //   `${spiltFilterString(val.split(/\[|\]/).reverse()[1])[0]}: ${
+              //     spiltFilterString(val.split(/\[|\]/).reverse()[1])[1]
+              //   }`
+              // );
               cy.add({
                 data: {
                   type: spiltFilterString(val.split(/\[|\]/).reverse()[1])[0],
-                  id: val,
+                  id: `${val}-${index}`,
                   label: "parent",
                   text: `${
                     spiltFilterString(val.split(/\[|\]/).reverse()[1])[0]
@@ -848,10 +1171,12 @@ export default {
                 },
               });
               test.orphans().move({
-                parent: val,
+                parent: `${val}-${index}`,
               });
               pp = pp.difference(test);
-              console.log(pp);
+              // pp.map(e=>{
+              //   console.log(e.data("name"))
+              // })
             });
 
             console.log("structureNode", structureNode);
@@ -863,7 +1188,9 @@ export default {
                 cy.add({
                   data: {
                     type: spiltFilterString(val)[0],
-                    id: `${spiltFilterString(val)[1]}`,
+                    id: `${spiltFilterString(val)[0]}-${
+                      spiltFilterString(val)[1]
+                    }-${index}`,
                     label: "parent",
                     text: `${toUpperCase(spiltFilterString(val)[0])}:${
                       spiltFilterString(val)[1]
@@ -872,18 +1199,22 @@ export default {
                 });
 
                 let fitQueryNodes;
-                if (spiltFilterString(val)[0] == "resourceGroup") {
-                  console.log("get resourceGroup");
-                  fitQueryNodes = queryNodes.filter(function (element) {
-                    console.log("RGG", element.data("tag.Application"));
-                    console.log(
-                      element
-                        .data("resourceGroup")
-                        .indexOf(spiltFilterString(val)[1])
-                    );
+                if (
+                  spiltFilterString(val)[0] == "resourceGroup" ||
+                  spiltFilterString(val)[0] == "subnet"
+                ) {
+                  console.log("get resourceGroup or subnet");
+                  fitQueryNodes = testCollection.filter(function (element) {
+                    // console.log(
+                    //   element
+                    //     .data(spiltFilterString(val)[0])
+                    //     .indexOf(spiltFilterString(val)[1])
+                    // );
                     return (
+                      element.data(spiltFilterString(val)[0]) &&
+                      element.data(spiltFilterString(val)[0]).length > 0 &&
                       element
-                        .data("resourceGroup")
+                        .data(spiltFilterString(val)[0])
                         .indexOf(spiltFilterString(val)[1]) != -1
                     );
                   });
@@ -892,22 +1223,24 @@ export default {
                   );
                 } else {
                   queryNodesWithParent = queryNodesWithParent
-                    .union(queryNodes.filter(`node[${val}]`))
-                    .union(queryNodes.filter(`node[${val}]`).parent());
+                    .union(testCollection.filter(`node[${val}]`))
+                    .union(testCollection.filter(`node[${val}]`).parent());
                 }
 
                 queryNodesWithParent.filter("node[^parent][^label]").move({
-                  parent: `${spiltFilterString(val)[1]}`,
+                  parent: `${spiltFilterString(val)[0]}-${
+                    spiltFilterString(val)[1]
+                  }-${index}`,
                 });
 
-                queryNodesWithParent.filter(`node[${val}]`).map((ele) => {
-                  console.log(
-                    "ele",
-                    ele.data("name"),
-                    ele.data(spiltFilterString(val)[0]),
-                    ele.parent().data("text")
-                  );
-                });
+                // queryNodesWithParent.filter(`node[${val}]`).map((ele) => {
+                //   console.log(
+                //     "ele",
+                //     ele.data("name"),
+                //     ele.data(spiltFilterString(val)[0]),
+                //     ele.parent().data("text")
+                //   );
+                // });
               });
             });
           }
@@ -917,7 +1250,7 @@ export default {
               ele.addClass("hidden");
             }
           });
-          graphElements.difference(queryNodes).addClass("notfilter");
+          graphElements.difference(testCollection).addClass("notfilter");
         }
         cy.filter("node[label='parent']").map((eles) => {
           let totalCost = 0;
@@ -935,6 +1268,102 @@ export default {
         cy.layout(fcose_layout).run();
       });
 
+      $("#checkComparisonNodes").click(function () {
+        cy.filter(`node[?label]`).map((ele) => {
+          if (_this.comparisonList.indexOf(ele.data("text")) == -1) {
+            _this.comparisonList.push(ele.data("text"));
+          }
+        });
+      });
+
+      function checkTypeVal(val) {
+        const type = val.split(":")[0];
+        const value = val.split(":")[1];
+        return [type, value];
+      }
+
+      $("#comparison").click(function () {
+        cy.elements().removeClass("fitComp");
+        let compareNode_col = new Map();
+        _this.compareNode_1.map((val, i) => {
+          compareNode_col.set(
+            val,
+            cy.filter(`node[?label][text="${val}"]`).descendants()
+          );
+          // compareNode_col = compareNode_col.push(compareNode_col, cy
+          // .filter(`node[?label][text="${_this.compareNode_1}"]`)
+          // .descendants())
+        });
+        console.log(compareNode_col);
+
+        let index = 0;
+        const iterator = compareNode_col.entries();
+        const v1 = iterator.next().value;
+        console.log("v1 key", v1[0]);
+        console.log("v1 val", v1[1]);
+
+        const v2 = iterator.next().value;
+        console.log("v2", v2.key);
+        console.log("v2", v2.value);
+
+        v1[1].map((ele) => {
+          let value = checkTypeVal(v1[0])[1];
+          let name_1 = ele.data("name").split(value);
+          let type_1 = ele.data("type");
+          v2[1].map((ele2) => {
+            let value_2 = checkTypeVal(v2[0])[1];
+            let name_2 = ele2.data("name").split(value_2);
+            let type_2 = ele2.data("type");
+            if (
+              name_1.sort().toString() == name_2.sort().toString() &&
+              type_1 == type_2
+            ) {
+              ele.addClass("fitComp");
+              ele2.addClass("fitComp");
+            }
+          });
+        });
+
+        let v1_notFit = {};
+        let v2_notFit = {};
+        v1[1]
+          .filter(function (ele) {
+            return !ele.hasClass("fitComp");
+          })
+          .map((ele) => {
+            if (Object.keys(v1_notFit).indexOf(ele.data("type")) == -1) {
+              Object.assign(v1_notFit, { [`${ele.data("type")}`]: [] });
+            }
+            if (v1_notFit[ele.data("type")].indexOf(ele.data("name")) == -1) {
+              v1_notFit[ele.data("type")].push(ele.data("name"));
+            }
+          });
+
+        console.log("v1_notFit", v1_notFit);
+        _this.v1_notFit = v1_notFit;
+
+        v2[1]
+          .filter(function (ele) {
+            return !ele.hasClass("fitComp");
+          })
+          .map((ele) => {
+            if (Object.keys(v2_notFit).indexOf(ele.data("type")) == -1) {
+              Object.assign(v2_notFit, { [`${ele.data("type")}`]: [] });
+            }
+            if (v2_notFit[ele.data("type")].indexOf(ele.data("name")) == -1) {
+              v2_notFit[ele.data("type")].push(ele.data("name"));
+            }
+          });
+
+        console.log("v2_notFit", v2_notFit);
+        _this.v2_notFit = v2_notFit;
+      });
+
+      $("#clear-highlight").click(function () {
+        cy.nodes().removeClass("fitComp");
+        _this.v1_notFit = {};
+        _this.v2_notFit = {};
+      });
       // expand / collapse
 
       // use expandcollapse extension:
@@ -960,10 +1389,25 @@ export default {
 
       cy.on("mouseover", "node", function (e) {
         var sel = e.target;
+        if (sel.data("label") == "parent") {
+          if (sel.data("type") == "vpc" || sel.data("type") == "subnet") {
+            _this.nodeType = toUpperCase(sel.data("type"));
+            _this.nodeName = sel.data("text").split("/")[1];
+          } else {
+            _this.nodeType = toUpperCase(sel.data("type"));
+            _this.nodeName = sel.data("text").split(":")[1];
+          }
+        } else {
+          _this.nodeType = sel.data("type");
+          _this.nodeName = sel.data("name");
+        }
+
         cy.elements()
           .difference(sel.outgoers())
+          .difference(sel.outgoers().ancestors())
           .difference(sel.incomers())
-          .difference(sel.parent())
+          .difference(sel.incomers().ancestors())
+          .difference(sel.ancestors())
           .difference(sel.children())
           .not(sel)
           .addClass("semitransp");
@@ -976,6 +1420,8 @@ export default {
 
       cy.on("mouseout", "node", function (e) {
         var sel = e.target;
+        _this.nodeType = "";
+        _this.nodeName = "";
         cy.elements().removeClass("semitransp");
         sel
           .removeClass("target_highlight")
@@ -994,8 +1440,7 @@ export default {
       cy.on("tap", "node", function (e) {
         var sel = e.target;
         _this.isRightSidebarOpen = true;
-        if (_this.isRightSidebarOpen) {
-        }
+
         cy.elements().removeClass("click_semitransp");
         cy.elements().removeClass("target_clickstyle");
         cy.elements().removeClass("income_clickstyle");
@@ -1007,35 +1452,57 @@ export default {
         sel.incomers().addClass("income_clickstyle");
         cy.elements()
           .difference(sel.outgoers())
+          .difference(sel.outgoers().ancestors())
           .difference(sel.incomers())
-          .difference(sel.parent())
+          .difference(sel.incomers().ancestors())
+          .difference(sel.ancestors())
           .difference(sel.children())
           .not(sel)
           .addClass("click_semitransp");
 
         // console.log(this.nodes+"nodes")
-
-        const filterOpt = [
-          "id",
-          "parent",
-          "account_id",
-          "fitQuery",
-          "fitParent",
-        ];
-        this.targetNode = e.target.data();
         _this.newTargetObj = {};
-        for (var i in this.targetNode) {
-          if (filterOpt.indexOf(i) == -1) {
-            const index = `${i.charAt(0).toUpperCase()}${i.slice(1)}`;
-
-            _this.newTargetObj = Object.assign(_this.newTargetObj, {
-              [index]: this.targetNode[i],
+        if (sel.data("label") == "parent") {
+          sel
+            .descendants()
+            .filter("node[^label]")
+            .map((ele) => {
+              if (
+                Object.keys(_this.newTargetObj).indexOf(ele.data("type")) == -1
+              ) {
+                _this.newTargetObj = Object.assign(_this.newTargetObj, {
+                  [ele.data("type")]: ele.data("name"),
+                });
+              } else {
+                console.log("_this.newTargetObj", _this.newTargetObj);
+                console.log(_this.newTargetObj[ele.data("type")]);
+                // _this.newTargetObj[ele.data("type")].push(ele.data("name"))
+              }
             });
-            // _this.newTargetObj = JSON.stringify(_this.newTargetObj)
-            // console.log(newTargetObj)
-            // console.log(index+":"+this.targetNode[i])
+        } else {
+          const filterOpt = [
+            "id",
+            "parent",
+            "account_id",
+            "fitQuery",
+            "fitParent",
+          ];
+          this.targetNode = e.target.data();
+
+          for (var i in this.targetNode) {
+            if (filterOpt.indexOf(i) == -1) {
+              const index = `${i.charAt(0).toUpperCase()}${i.slice(1)}`;
+
+              _this.newTargetObj = Object.assign(_this.newTargetObj, {
+                [index]: this.targetNode[i],
+              });
+              // _this.newTargetObj = JSON.stringify(_this.newTargetObj)
+              // console.log(newTargetObj)
+              // console.log(index+":"+this.targetNode[i])
+            }
           }
         }
+
         // console.log(JSON.stringify(_this.newTargetObj))
       });
 
@@ -1075,6 +1542,8 @@ export default {
     },
   },
   async mounted() {
+    document.getElementById("sidebar").setAttribute("style", "display: none");
+
     let params = JSON.parse(sessionStorage.getItem("item"));
     this.requestID = params.requestID;
     this.archName = params.archName;
@@ -1092,7 +1561,6 @@ export default {
           var JSONdata = JSON.parse(res.data.message);
           this.nodes = JSONdata[1];
           this.edges = JSONdata[2];
-
           this.tag.Department = JSONdata[0][0].tag.Department;
           this.tag.Environment = JSONdata[0][0].tag.Environment;
           this.tag.Owner = JSONdata[0][0].tag.Owner;
@@ -1101,25 +1569,20 @@ export default {
           this.ResourceRegionResult = JSONdata[0][0].region;
           this.ResourceRGResult = JSONdata[0][0].resourceGroup;
           this.ResourceTypeResult = JSONdata[0][0].type;
-          // this.nodes = res.data[0];
-          // this.edges = res.data[1];
+          this.subnetList = JSONdata[0][0].subnet;
+          this.vpcList = JSONdata[0][0].vpc.filter((el) => el);
         })
         .catch((err) => {
           console.log(err);
         });
-      // this.ListIncludeResourceType();
-      // this.ListIncludeResourceRegion();
       this.ListIncludeAccountID();
-      // this.ListIncludeRG();
-      console.log("this.ResourceAccountID", this.ResourceAccountID);
-      // this.ListIncludeTag();
       this.Addimg();
-      // console.log(this.nodes)
       await this.createCytoscape(_this);
     } catch (e) {
       this.errors.push(e);
     }
   },
+  beforeCreate() {},
 };
 </script>
 
@@ -1128,16 +1591,14 @@ export default {
 
 
 <style lang="scss" scoped>
-.b-nav.navbar {
-  // display: none !important;
-  // margin-left: 50px;
-  justify-content: flex-end !important;
+.aws {
+  margin-left: 0px !important;
 }
 
 #cy {
   // max-width: 100%;
   /* height: 75%; */
-  height: 515px;
+  height: 500px;
   border: 2px solid #a1a1a1;
   border-radius: 5px;
   color: #cccccc;
@@ -1185,6 +1646,12 @@ main {
   }
 }
 
+.sidebar-comparison .b-sidebar > .b-sidebar-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .b-icon.delete-icon {
   font-size: 20px;
 }
@@ -1207,7 +1674,7 @@ main {
 }
 
 .filter-panel {
-  width: 450px;
+  width: 525px;
   select {
     margin-right: 8px;
   }

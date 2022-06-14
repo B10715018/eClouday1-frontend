@@ -1,15 +1,20 @@
 <template>
-	<div class="a">
+	<div class="d-flex">
 		<!-- Sidebar -->
 		<Sidebar />
 
 		<!-- Content -->
-		<router-view />
+		<router-view style="margin: 55px" />
 	</div>
 </template>
 
 <script setup>
 import Sidebar from './Sidebar.vue'
+export default {
+    name: "publicNotes",
+    components: { Sidebar },
+    
+  };
 </script>
 
 <style lang="scss">

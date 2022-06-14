@@ -43,6 +43,10 @@ app.get('/api/private-notes', authCheck, (req,res) => {
   res.json(notes);
 })
 
+app.get('/', function (req, res) {
+  res.send('Hello World');
+});
+
 app.get('/authorized', function (req, res) {
   res.send('Secured Resource');
 });

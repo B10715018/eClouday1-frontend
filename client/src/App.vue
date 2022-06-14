@@ -1,32 +1,30 @@
 <template>
-  
-    <div>
-      <router-view  />
-
-      <!-- <div v-else>
-        <b-modal
-          class="loadingModal"
-          id="modal-1"
-          ref="sending-modal"
-          no-close-on-backdrop="true"
-          hide-footer="true"
-          hide-header-close="true"
-          v-model="loadingmodalShow"
-          centered
-        >
-        <div>
-          <b-spinner class="text-center" label="Loading..."></b-spinner>
-        </div>
-        </b-modal>
-      </div> -->
-      
+  <div>
+    <b-modal
+      id="modal-1"
+      class="loadingModal"
+      ref="sending-modal"
+      no-close-on-backdrop
+      hide-footer
+      hide-header-close
+      no-border
+      v-show="loadingmodalShow"
+      size="sm"
+      centered
+    >
+      <div class="text-center">
+        <b-spinner label="Loading..."></b-spinner>
+      </div>
+    </b-modal>
+    <div class="d-flex">
+      <nav-bar />
+      <router-view :style="{ 'margin-left': sidebarWidth }" style="width: 100%" />
     </div>
+  </div>
 </template>
 
 <script>
-// import NavBar from "@/components/NavBar.vue";
 import NavBar from "@/components/Sidebar.vue";
-// import { sidebarWidth } from "@/components/sidebar/state";
 import { isLoggedIn, login } from "@/utils/auth-service";
 
 export default {
@@ -36,25 +34,25 @@ export default {
   },
   data() {
     return {
-      sidebarWidth: "100px",
-      loadingmodalShow: true
-    }
+      sidebarWidth: "55px",
+      loadingmodalShow: true,
+    };
   },
   methods: {
     isLoggedIn() {
       return isLoggedIn();
-    }
+    },
   },
   setup() {
     // return { sidebarWidth };
   },
-  mounted () {
-    if ( !isLoggedIn() ) { 
-      console.log("not")
-      login(); 
-    } else { 
-      this.loadingmodalShow = false
-      console.log("isLoggedIn()",isLoggedIn())
+  mounted() {
+    if (!isLoggedIn()) {
+      console.log("not");
+      login();
+    } else {
+      this.loadingmodalShow = false;
+      console.log("isLoggedIn()", isLoggedIn(), this.loadingmodalShow);
     }
   },
 };
@@ -86,11 +84,11 @@ export default {
   }
 }
 
-.loadingModal {
+#modal-1___BV_modal_content_ {
+  border: 0;
+  background: transparent;
+  .modal-header {
     border: 0;
-    background: "#fff0";
-    .modal-header {
-      border: 0;
-    }
   }
+}
 </style>

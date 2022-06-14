@@ -52,11 +52,23 @@ export const nodeImg = [
       url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Amazon-Resourece-Groups-and-Tags.png",
     },
     {
+      title: "tag.Department",
+      url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Amazon-Resourece-Groups-and-Tags.png",
+    },
+    {
       title: "WAF",
       url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Arch_AWS-WAF_32.png",
     },
     {
       title: "ElbV2",
       url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Elastic-Load-Balancing-ELB_light-bg.png",
+    },
+    {
+      title: "Subnet",
+      url: "https://audio-json.s3.us-west-2.amazonaws.com/img/VPC-subnet-public_dark-bg.png",
+    },
+    {
+      title: "VPC",
+      url: "https://audio-json.s3.us-west-2.amazonaws.com/img/Amazon-VPC.png",
     },
   ];

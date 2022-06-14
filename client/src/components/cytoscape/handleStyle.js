@@ -124,7 +124,7 @@ export const cytoStyle = [
           node.data("type")[0].toUpperCase() + node.data("type").slice(1);
         return node.data("label") == "parent"
           ? `${type} (${node.data("id")})`
-          : node.data("name")
+          : node.data("name") != null
           ? `${node.data("name")}`
           : `${node.data("id")}`;
       },
@@ -169,8 +169,12 @@ export const cytoStyle = [
           ? "green"
           : type.includes("tag.")
           ? "#f1860b"
-          : type.includes("resourceGroup")
+          : type == ("resourceGroup")
           ? "#2794a5"
+          : type.toLowerCase() == ("subnet")
+          ? "rgb(144, 217, 123)"
+          : type.toLowerCase() == ("vpc")
+          ? "rgb(162, 91, 233)"
           : "#be0e8d";
       },
       "text-margin-x": 20,
@@ -181,8 +185,12 @@ export const cytoStyle = [
       content: function(node) {
         const type = node.data("type");
         const id = node.data("id");
-        return node.data("label") == "parent"
+        return node.data("label") == "parent" 
           ? `${node.data("text")} ( $${node.data("cost_for_month")} USD/month )`
+          : node.data("label") == "parent" && (type == "subnet" || type == "vpc")
+          ? `${type}:${node.data("id").spilt("/")[1]} ( $${node.data("cost_for_month")} USD/month )`
+          : type == "subnet" || type == "vpc"
+          ? `${type} (${id.spilt("/")[1]})`
           : type == "account_id"
           ? `Account (${id})`
           : type == "region"
@@ -200,6 +208,13 @@ export const cytoStyle = [
     selector: ".hidden",
     css: {
       display: "none",
+    },
+  },
+  {
+    selector: ".fitComp",
+    style: {
+      color: "#449737",
+      "font-weight": "bold"
     },
   },
   {

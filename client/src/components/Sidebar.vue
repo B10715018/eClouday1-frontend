@@ -1,25 +1,25 @@
 <template>
   <div>
-    <div class="sidebar-close">
-      <b-button v-b-toggle.leftSidebar
+    <div class="sidebar-close" id="sidebar">
+      <b-button v-b-toggle.leftBar
         ><b-icon icon="chevron-double-right"></b-icon
       ></b-button>
     </div>
     <b-sidebar
-      id="leftSidebar"
+      id="leftBar"
       class="sidebar-menu"
       width="210px"
       shadow
       title="Clouday1"
-      v-model="isLeftSidebarOpen"
+      v-model="isLeftBarOpen"
       text-variant="light"
     >
       <template #footer>
         <div class="d-flex bg-dark text-light align-items-center px-3 py-2">
           <strong class="mr-auto"></strong>
           <!-- <b-button size="sm" @click="hide">Close</b-button> -->
-          
-		  <b-button
+
+          <b-button
             v-if="!isLoggedIn()"
             @click="handleLogin"
             variant="info"
@@ -29,35 +29,26 @@
           >
             Sign In
           </b-button>
-		  <div v-if="isLoggedIn()">
-			  <b-button
-            class="my-2 my-sm-0 mx-1"
-            size="sm"
-            variant="warning"
-          >
-            <b-icon icon="bell-fill"></b-icon>
-			</b-button>
-			  <b-button
-            class="my-2 my-sm-0 mx-1"
-            size="sm"
-            variant="light"
-          >
-            <b-icon icon="gear-fill"></b-icon>
-          </b-button>
-		  <b-button
-            @click="handleLogout"
-            variant="info"
-            class="my-2 my-sm-0 mx-1"
-            type="submit"
-            size="sm"
-          >
-            <b-icon icon="box-arrow-right"></b-icon>
-          </b-button>
-		  </div>
-          
+          <div v-if="isLoggedIn()">
+            <b-button class="my-2 my-sm-0 mx-1" size="sm" variant="warning">
+              <b-icon icon="bell-fill"></b-icon>
+            </b-button>
+            <b-button class="my-2 my-sm-0 mx-1" size="sm" variant="light">
+              <b-icon icon="gear-fill"></b-icon>
+            </b-button>
+            <b-button
+              @click="handleLogout"
+              variant="info"
+              class="my-2 my-sm-0 mx-1"
+              type="submit"
+              size="sm"
+            >
+              <b-icon icon="box-arrow-right"></b-icon>
+            </b-button>
+          </div>
         </div>
       </template>
-      <div class="px-2 py-2">
+      <div class="px-3 py-2">
         <div id="router-nav" class="router-nav">
           <div class="nav-panel-mobile">
             <div class="hamburger-icon" @click="toggle()">
@@ -77,25 +68,30 @@
             </div>
           </div>
           <div class="nav-panel">
-            <!-- <div
-              class="nav-item"
-              v-for="route in $router.options.routes"
-              :key="route.path"
-            > -->
             <div
               class="nav-item"
-              v-for="(route, i) in $router.options.routes"
+              v-for="(route, i) in handleRoute"
               :key="route.path"
               :class="{ active: route.clicked }"
             >
-              <a
-                v-b-toggle="'collapse-' + i"
+              <router-link
                 class="custom-nav-item"
-                v-if="check(route.name)"
+                :to="route.path"
+                v-if="route.children == null"
+              ><b-icon :icon="route.icon"></b-icon>
+                {{ route.name }}
+              </router-link>
+              <a v-else 
+                v-b-toggle="'collapse-' + i" 
+                class="custom-nav-item not-collapsed"
+                ><b-icon :icon="route.icon" class="mr-1"></b-icon
                 >{{ route.name }}</a
               >
-              <b-collapse :id="'collapse-' + i" class="mt-2">
-                <div class="nav-subitem" v-if="route.children != 'undefined'">
+              <b-collapse 
+                :id="'collapse-' + i" 
+                class="mt-2"
+                >
+                <div class="nav-subitem">
                   <router-link
                     class="custom-nav-subitem"
                     v-for="child in route.children"
@@ -118,15 +114,15 @@
 </template>
 
 <script>
-import jQuery from "jquery";
-window.$ = window.jQuery = jQuery;
 import { isLoggedIn, login, logout } from "@/utils/auth-service";
+import { routers } from "@/router/route.js";
 
 export default {
   data: function () {
     return {
       active: false,
-      isLeftSidebarOpen: false,
+      isLeftBarOpen: false,
+      handleRoute: routers,
     };
   },
   computed: {
@@ -134,7 +130,6 @@ export default {
       return this.$route.name;
     },
   },
-  created: function () {},
   methods: {
     toggle: function () {
       this.active = !this.active;
@@ -148,9 +143,9 @@ export default {
     isLoggedIn() {
       return isLoggedIn();
     },
-    check(name) {
-      if (name != "Arch" && name != "Callback") return true;
-    },
+    // check(name) {
+    //   if (name != "Callback") return true;
+    // },
   },
 };
 </script>
@@ -172,18 +167,18 @@ export default {
 }
 
 .bi-box-arrow-right.b-icon {
-	font-size: 16px !important;
+  font-size: 20px !important;
 }
 
 .sidebar-menu .b-sidebar > .b-sidebar-footer {
-	background: #7c7b7b59;
+  background: #7c7b7b59;
 }
 
 .sidebar-close {
   position: fixed;
   top: 0;
   bottom: 0;
-  width: 60px;
+  width: 55px;
   height: 100%;
   background: #3c4547;
   transition: all 0.3s ease;
@@ -195,10 +190,10 @@ export default {
     border: 0;
     width: 100%;
     border-radius: 0 0 25px 0;
-	padding: 10px 5px 14px 0;
+    padding: 10px 5px 14px 0;
     .b-icon {
       color: #3c4547;
-	  font-size: 24px !important;
+      font-size: 22px !important;
     }
   }
 }
@@ -246,6 +241,10 @@ export default {
   cursor: pointer;
 }
 
+.custom-nav-subitem {
+  font-size: 0.85em;
+}
+
 .custom-nav-subitem:hover {
   border-left: #ecb300 solid 4px;
 }
@@ -291,7 +290,7 @@ export default {
 }
 
 .nav-item .nav-subitem {
-  margin-left: 28px;
+  margin-left: 12px;
   margin-top: 8px;
   a {
     margin: 8px 0;
