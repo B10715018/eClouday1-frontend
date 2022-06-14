@@ -558,7 +558,7 @@ export default {
       this.Isupdating = true
       console.log(item);
       axios
-        .post("http://44.237.111.172/update", { requestID: requestID })
+        .post(process.env.VUE_APP_BASE_URL + "/update", { requestID: requestID })
         .then((res) => {
           this.Isupdating = false
           console.log(res);
@@ -675,9 +675,9 @@ export default {
       }, 2000);
       console.log("bigloading", this.loadingmodalShow)
       console.log("sideloading", this.isProcessing)
-
       axios
-        .post("http://44.237.111.172/newPost", this.form, {})
+        // .post("http://44.237.111.172/newPost", this.form, {})
+        .post(process.env.VUE_APP_BASE_URL + "/newPost", this.form, {})
         .then((res) => {
           console.log(res);
           if (res.status == 200) {
